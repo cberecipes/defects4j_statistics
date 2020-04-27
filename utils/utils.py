@@ -37,6 +37,15 @@ def get_bug_detecting_tests(project_id, current_project_path):
     return trigger_tests
 
 
+def get_coverable_line_numbers(project_id, current_project_path, modified_classes, for_which_coverage):
+    coverable_lines_json = get_coverable_lines(project_id, current_project_path, modified_classes)
+    statement_coverable_lines = 0
+    for modified_class in modified_classes:
+        statement_coverable_lines = \
+            statement_coverable_lines + len(coverable_lines_json[modified_class][for_which_coverage])
+    return statement_coverable_lines
+
+
 def read_file(file_path):
     if not path.exists(file_path):
         # print("File not exist!" + file_path)

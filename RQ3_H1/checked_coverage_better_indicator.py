@@ -9,7 +9,8 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
-    for_list_of_projects()
+    result = for_list_of_projects()
+    print(json.dumps(result))
 
 
 def for_list_of_projects():
@@ -19,7 +20,7 @@ def for_list_of_projects():
         result['project_name'] = project
         result['result'] = for_each_project(project)
 
-    print(json.dumps(result))
+    return result
 
 
 def for_each_project(project_name):

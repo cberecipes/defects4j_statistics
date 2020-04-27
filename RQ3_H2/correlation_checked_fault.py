@@ -9,7 +9,8 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
-    for_list_of_projects()
+    result = for_list_of_projects()
+    print(json.dumps(result))
 
 
 def for_list_of_projects():
@@ -19,7 +20,7 @@ def for_list_of_projects():
         result['tests'] = for_each_project(project)
         result['project'] = project
 
-    print(json.dumps(result))
+    return result
 
 
 def for_each_project(project_name):
@@ -55,12 +56,10 @@ def create_test_suites(percent, project_id, current_project_path):
     list_of_test_methods = get_relevant_test_methods(modified_classes, statement_coverage)
     list_of_bug_detecting_tests = utils.get_bug_detecting_tests(project_id, current_project_path)
 
-    statement_coverage_coverable_lines = get_coverable_line_numbers(
-        utils.get_coverable_lines(project_id, current_project_path, modified_classes),
-        modified_classes, "statement_coverable_lines")
-    checked_coverage_coverable_lines = get_coverable_line_numbers(
-        utils.get_coverable_lines(project_id, current_project_path, modified_classes),
-        modified_classes, "checked_coverable_lines")
+    statement_coverage_coverable_lines = utils.get_coverable_line_numbers(
+        project_id, current_project_path, modified_classes, "statement_coverable_lines")
+    checked_coverage_coverable_lines = utils.get_coverable_line_numbers(
+        project_id, current_project_path, modified_classes, "checked_coverable_lines")
 
     # For each modified classes
     result['statement_coverage'] = create_test_suite(
@@ -131,12 +130,3 @@ def get_relevant_test_methods(modified_classes, statement_coverage):
             test_methods.append(key)
 
     return test_methods
-
-
-def get_coverable_line_numbers(coverable_lines_json, modified_classes, for_which_coverage):
-    statement_coverable_lines = 0
-    for modified_class in modified_classes:
-        statement_coverable_lines = \
-            statement_coverable_lines + len(coverable_lines_json[modified_class][for_which_coverage])
-    return statement_coverable_lines
-
