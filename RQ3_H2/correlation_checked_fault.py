@@ -1,7 +1,8 @@
-import json
 import random
+import sys
 from os import path
 
+from RQ3_H2 import point_biserial_correlation
 from util import read_config
 from utils import utils
 
@@ -9,8 +10,14 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
+    random_number = str(random.randint(1, sys.maxsize-1))
+    file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
     result = for_list_of_projects()
-    print(json.dumps(result))
+    # result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
+
+    point_bc = point_biserial_correlation.compute(result)
+    utils.write_list_as_csv(point_bc, file_path + '.csv')
+    utils.write_json_file(result, file_path + '.json')
 
 
 def for_list_of_projects():
@@ -28,34 +35,38 @@ def for_each_project(project_name):
     defects4j_project_path = project_config.get('paths', 'defects4j_project_path')
     percentage_range = project_config.get('projects', 'test_suite_coverage_percentage').split(",")
     test_suite_size = project_config.get('projects', 'test_suite_size')
-    final_result = {}
+    final_result = []
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
+        result = {}
         is_project_path_exist = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
         if path.isdir(is_project_path_exist):
             test_suite_size_percent = []
+            current_project_path = defects4j_project_path + "/" + project_name
+            list_of_bug_detecting_tests = utils.get_bug_detecting_tests(project_id, current_project_path)
+            print(list_of_bug_detecting_tests)
             for percent in percentage_range:
-                current_project_path = defects4j_project_path + "/" + project_name
                 test_suites = {}
                 test_suite_list = []
                 for i in range(0, int(test_suite_size)):
-                    test_suite_list.append(create_test_suites(int(percent), project_id, current_project_path))
-                test_suites['percentage'] = percent
+                    test_suite_list.append(create_test_suites(
+                        int(percent), project_id, current_project_path, list_of_bug_detecting_tests))
+                test_suites['percentage'] = int(percent)
                 test_suites['test_suites'] = test_suite_list
 
                 test_suite_size_percent.append(test_suites)
-            final_result['project_id'] = project_id
-            final_result['tests'] = test_suite_size_percent
+            result['project_id'] = project_id
+            result['tests'] = test_suite_size_percent
+            result['list_of_bug_detecting_tests'] = list_of_bug_detecting_tests
+            final_result.append(result)
     return final_result
 
 
-def create_test_suites(percent, project_id, current_project_path):
+def create_test_suites(percent, project_id, current_project_path, list_of_bug_detecting_tests):
     result = {}
     modified_classes = utils.get_modified_classes(project_id, current_project_path)
     statement_coverage = utils.get_statement_coverage(project_id, current_project_path, modified_classes)
     checked_coverage = utils.get_checked_coverage(project_id, current_project_path, modified_classes)
     list_of_test_methods = get_relevant_test_methods(modified_classes, statement_coverage)
-    list_of_bug_detecting_tests = utils.get_bug_detecting_tests(project_id, current_project_path)
-
     statement_coverage_coverable_lines = utils.get_coverable_line_numbers(
         project_id, current_project_path, modified_classes, "statement_coverable_lines")
     checked_coverage_coverable_lines = utils.get_coverable_line_numbers(
@@ -86,10 +97,17 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
     result['tests'] = created_test_suite_list
     result['is_bug_detecting_test_included'] = False
     for bug_detecting_test in bug_detecting_tests:
+        print(bug_detecting_test)
         if bug_detecting_test in created_test_suite_list:
             result['is_bug_detecting_test_included'] = True
 
-    return result
+    if result['score'] >= percent:
+        return result
+    else:
+        result['score'] = 0
+        result['tests'] = []
+        result['is_bug_detecting_test_included'] = False
+        return result
 
 
 def add_new_test_into_list(list_of_test_methods, created_test_suite_list):

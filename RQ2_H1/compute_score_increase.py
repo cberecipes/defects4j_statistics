@@ -24,10 +24,11 @@ def for_each_project(project_name):
     project_range = project_config.get('projects', project_name).split(",")
     defects4j_project_path = project_config.get('paths', 'defects4j_project_path')
     # for each project fixed versions
-    result = {}
+    final_result = []
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
         is_project_path_exist = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
         if path.isdir(is_project_path_exist):
+            result = {}
             scores = {}
             current_project_path = defects4j_project_path + "/" + project_name
             modified_classes = utils.get_modified_classes(project_id, current_project_path)
@@ -53,11 +54,16 @@ def for_each_project(project_name):
                 checked_coverage, [], checked_coverage_coverable_lines)
 
             result['project_id'] = project_id
-            scores['statement_coverage'] = {'buggy': statement_coverage_buggy, 'fixed': statement_coverage_fixed, 'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
-            scores['checked_coverage'] = {'buggy': checked_coverage_buggy, 'fixed': checked_coverage_fixed, 'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
+            scores['statement_coverage'] = {'buggy': statement_coverage_buggy,
+                                            'fixed': statement_coverage_fixed,
+                                            'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
+            scores['checked_coverage'] = {'buggy': checked_coverage_buggy,
+                                          'fixed': checked_coverage_fixed,
+                                          'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
             result['scores'] = scores
+            final_result.append(result)
 
-    return result
+    return final_result
 
 
 def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
