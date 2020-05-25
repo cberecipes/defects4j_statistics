@@ -22,11 +22,9 @@ def compute():
 
 def for_list_of_projects():
     project_list = project_config.get('projects', 'project_list').split(",")
-    result = {}
+    result = []
     for project in project_list:
-        result['tests'] = for_each_project(project)
-        result['project'] = project
-
+        result.append({'tests': for_each_project(project), 'project': project})
     return result
 
 
