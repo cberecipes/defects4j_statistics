@@ -1,7 +1,9 @@
-import json
+import random
+import sys
 from os import path
 from collections import defaultdict
 
+from RQ3_H1 import format_as_csv
 from util import read_config
 from utils import utils
 
@@ -9,16 +11,20 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
+    random_number = str(random.randint(1, sys.maxsize - 1))
+    file_path = 'RQ3_H1/results/does_coverage_increase__' + random_number
     result = for_list_of_projects()
-    print(json.dumps(result))
+    formatted_result = format_as_csv.format_contents(result)
+
+    utils.write_list_as_csv(formatted_result, file_path + '.csv')
+    utils.write_json_file(result, file_path + '.json')
 
 
 def for_list_of_projects():
     project_list = project_config.get('projects', 'project_list').split(",")
-    result = {}
+    result = []
     for project in project_list:
-        result['project_name'] = project
-        result['result'] = for_each_project(project)
+        result.append({'project_name': project, 'result': for_each_project(project)})
 
     return result
 
