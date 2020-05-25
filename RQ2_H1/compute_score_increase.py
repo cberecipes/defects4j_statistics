@@ -1,5 +1,8 @@
-import json
 from os import path
+import random
+import sys
+
+from RQ2_H1 import format_as_csv
 from util import read_config
 from utils import utils
 
@@ -7,16 +10,20 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
+    random_number = str(random.randint(1, sys.maxsize - 1))
+    file_path = 'RQ2_H1/results/does_coverage_increase__' + random_number
     result = for_list_of_projects()
-    print(json.dumps(result))
+    formatted_result = format_as_csv.format_contents(result)
+
+    utils.write_list_as_csv(formatted_result, file_path + '.csv')
+    utils.write_json_file(result, file_path + '.json')
 
 
 def for_list_of_projects():
     project_list = project_config.get('projects', 'project_list').split(",")
-    result = {}
+    result = []
     for project in project_list:
-        result['project_name'] = project
-        result['result'] = for_each_project(project)
+        result.append({'project_name': project, 'result': for_each_project(project)})
     return result
 
 
@@ -36,22 +43,22 @@ def for_each_project(project_name):
             statement_coverage = utils.get_statement_coverage(project_id, current_project_path, modified_classes)
             checked_coverage = utils.get_checked_coverage(project_id, current_project_path, modified_classes)
 
-            statement_coverage_coverable_lines = utils.get_coverable_line_numbers(
+            sc_coverable_line_nr = utils.get_coverable_line_numbers(
                 project_id, current_project_path, modified_classes, "statement_coverable_lines")
-            checked_coverage_coverable_lines = utils.get_coverable_line_numbers(
+            cc_coverable_line_nr = utils.get_coverable_line_numbers(
                 project_id, current_project_path, modified_classes, "checked_coverable_lines")
 
             statement_coverage_buggy = compute_coverage_score(
-                statement_coverage, list_of_bug_detecting_tests, statement_coverage_coverable_lines)
+                statement_coverage, list_of_bug_detecting_tests, sc_coverable_line_nr)
 
             checked_coverage_buggy = compute_coverage_score(
-                checked_coverage, list_of_bug_detecting_tests, checked_coverage_coverable_lines)
+                checked_coverage, list_of_bug_detecting_tests, cc_coverable_line_nr)
 
             statement_coverage_fixed = compute_coverage_score(
-                statement_coverage, [], statement_coverage_coverable_lines)
+                statement_coverage, [], sc_coverable_line_nr)
 
             checked_coverage_fixed = compute_coverage_score(
-                checked_coverage, [], checked_coverage_coverable_lines)
+                checked_coverage, [], cc_coverable_line_nr)
 
             result['project_id'] = project_id
             scores['statement_coverage'] = {'buggy': statement_coverage_buggy,
