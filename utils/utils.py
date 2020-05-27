@@ -23,7 +23,10 @@ def get_checked_coverage(project_id, current_project_path, modified_classes):
     checked_coverage = read_json_file(file_path)
     updated_checked_coverage = {}
     for modified_class in modified_classes:
-        updated_checked_coverage[modified_class] = checked_coverage[modified_class]
+        try:
+            updated_checked_coverage[modified_class] = checked_coverage[modified_class]
+        except KeyError:
+            updated_checked_coverage[modified_class] = {}
 
     return updated_checked_coverage
 
@@ -39,6 +42,14 @@ def get_bug_detecting_tests(project_id, current_project_path):
 
 
 def get_coverable_line_numbers(project_id, current_project_path, modified_classes, for_which_coverage):
+    """
+    Returns, Number of lines that can be covered in total
+    :param project_id:
+    :param current_project_path:
+    :param modified_classes:
+    :param for_which_coverage:
+    :return:
+    """
     coverable_lines_json = get_coverable_lines(project_id, current_project_path, modified_classes)
     statement_coverable_lines = 0
     for modified_class in modified_classes:
@@ -59,7 +70,7 @@ def get_coverable_lines(project_id, current_project_path, modified_classes):
         try:
             required_coverage[modified_class] = all_class_data[modified_class]
         except KeyError:
-            pass
+            required_coverage[modified_class] = []
 
     return required_coverage
 
