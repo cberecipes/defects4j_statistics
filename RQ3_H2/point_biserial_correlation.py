@@ -36,7 +36,7 @@ def compute(data_dump):
                                         is_bug_included_c.append(
                                             p_tests['checked_coverage']['is_bug_detecting_test_included'])
                     try:
-                        print(is_bug_included_s)
+                        print(scores_s, is_bug_included_s)
                         s_r = getattr(pointbiserialr(scores_s, is_bug_included_s), 'correlation')
                         if math.isnan(s_r):
                             if list(set(is_bug_included_s))[0]:

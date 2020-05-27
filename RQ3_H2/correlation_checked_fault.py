@@ -7,24 +7,25 @@ from util import read_config
 from utils import utils
 
 project_config = read_config(['project_details.properties'])
+random_number = str(random.randint(1, sys.maxsize-1))
+file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
 
 
 def compute():
-    random_number = str(random.randint(1, sys.maxsize-1))
-    file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
     result = for_list_of_projects()
     # result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
-
     point_bc = point_biserial_correlation.compute(result)
     utils.write_list_as_csv(point_bc, file_path + '.csv')
-    utils.write_json_file(result, file_path + '.json')
+    utils.write_json_file(result, file_path + '_all.json')
 
 
 def for_list_of_projects():
     project_list = project_config.get('projects', 'project_list').split(",")
     result = []
     for project in project_list:
-        result.append({'tests': for_each_project(project), 'project': project})
+        tests = for_each_project(project)
+        utils.write_json_file(tests[0], file_path + '_' + project + '.json')
+        result.append({'tests': tests, 'project': project})
     return result
 
 
@@ -41,7 +42,6 @@ def for_each_project(project_name):
             test_suite_size_percent = []
             current_project_path = defects4j_project_path + "/" + project_name
             list_of_bug_detecting_tests = utils.get_bug_detecting_tests(project_id, current_project_path)
-            print(list_of_bug_detecting_tests)
             for percent in percentage_range:
                 test_suites = {}
                 test_suite_list = []
@@ -95,7 +95,6 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
     result['tests'] = created_test_suite_list
     result['is_bug_detecting_test_included'] = False
     for bug_detecting_test in bug_detecting_tests:
-        print(bug_detecting_test)
         if bug_detecting_test in created_test_suite_list:
             result['is_bug_detecting_test_included'] = True
 
