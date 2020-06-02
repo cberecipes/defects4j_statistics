@@ -16,7 +16,7 @@ def clean_source_dir():
             if is_deletable(str(file)):
                 file_path = folder_path + '/' + str(file)
                 os.remove(file_path)
-                print("deleted " + folder_path)
+                print("deleted " + file_path)
 
 
 def is_deletable(name):

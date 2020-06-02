@@ -8,7 +8,14 @@ def get_statement_coverage(project_id, current_project_path, modified_classes):
     statement_coverage = read_json_file(file_path)
     updated_statement_coverage = {}
     for modified_class in modified_classes:
-        updated_statement_coverage[modified_class] = statement_coverage[modified_class]
+        try:
+            updated_statement_coverage[modified_class] = statement_coverage[modified_class]
+        except KeyError:
+            error_text = "KeyError - get_statement_coverage - for the class {2}, in project - {1}, " \
+                         "id - {0}".format(project_id, current_project_path.split("/")[-1], modified_class)
+            print(error_text)
+
+            updated_statement_coverage[modified_class] = {}
 
     return updated_statement_coverage
 
@@ -26,6 +33,10 @@ def get_checked_coverage(project_id, current_project_path, modified_classes):
         try:
             updated_checked_coverage[modified_class] = checked_coverage[modified_class]
         except KeyError:
+            error_text = "KeyError - get_checked_coverage - for the class {2}, in project - {1}, " \
+                         "id - {0}".format(project_id, current_project_path.split("/")[-1], modified_class)
+            print(error_text)
+
             updated_checked_coverage[modified_class] = {}
 
     return updated_checked_coverage
@@ -53,8 +64,15 @@ def get_coverable_line_numbers(project_id, current_project_path, modified_classe
     coverable_lines_json = get_coverable_lines(project_id, current_project_path, modified_classes)
     statement_coverable_lines = 0
     for modified_class in modified_classes:
-        statement_coverable_lines = \
-            statement_coverable_lines + len(coverable_lines_json[modified_class][for_which_coverage])
+        try:
+            statement_coverable_lines = \
+                statement_coverable_lines + len(coverable_lines_json[modified_class][for_which_coverage])
+        except TypeError:
+            error_text = "TypeError - get_coverable_line_numbers -  get_coverable_line_numbers - " \
+                         "for the class {2}, project - {1}, id - {0}, type of coverage - {3}".\
+                format(project_id, current_project_path.split("/")[-1], modified_class, for_which_coverage)
+
+            print(error_text)
     return statement_coverable_lines
 
 
@@ -70,6 +88,9 @@ def get_coverable_lines(project_id, current_project_path, modified_classes):
         try:
             required_coverage[modified_class] = all_class_data[modified_class]
         except KeyError:
+            error_text = "KeyError - get_coverable_lines - for the class {2}, in project - {1}, " \
+                         "id - {0}".format(project_id, current_project_path.split("/")[-1], modified_class)
+            print(error_text)
             required_coverage[modified_class] = []
 
     return required_coverage

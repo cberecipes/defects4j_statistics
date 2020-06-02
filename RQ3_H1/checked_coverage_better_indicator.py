@@ -87,13 +87,19 @@ def get_modified_lines(patch_path):
     for line in utils.read_file(patch_path):
         if line.startswith("diff --git "):
             class_name = get_class_name(line.split(" "))
+            # Some times modified files are not java files, eg .txt etc...
+            # class_name will be None if they are not .java file
+            if class_name is None:
+                break
         if line.startswith("@@ "):
             comma_separated_line = line.split("@@")[1].split("+")[1].split(",")
             try:
-                counts[class_name] = counts[class_name] + [*range(int(comma_separated_line[0]), int(comma_separated_line[0])+int(comma_separated_line[1]))]
+                counts[class_name] = counts[class_name] + [*range(int(comma_separated_line[0]),
+                                                                  int(comma_separated_line[0])
+                                                                  + int(comma_separated_line[1]))]
             except KeyError:
-                counts[class_name] = [*range(int(comma_separated_line[0]), int(comma_separated_line[0])+int(comma_separated_line[1]))]
-
+                counts[class_name] = [*range(int(comma_separated_line[0]), int(comma_separated_line[0])
+                                             + int(comma_separated_line[1]))]
     return counts
 
 
