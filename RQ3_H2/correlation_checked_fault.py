@@ -45,12 +45,10 @@ def for_each_project(project_name):
             for percent in percentage_range:
                 test_suites = {}
                 test_suite_list = []
+                print("for project " + str(project_name) +
+                      " with id " + str(project_id) +
+                      " for percent " + str(percent))
                 for i in range(0, int(test_suite_size)):
-                    print("for project " + str(project_name) +
-                          " with id " + str(project_id) +
-                          " for percent " + str(percent) +
-                          " for suite size " + str(i))
-
                     test_suite_list.append(create_test_suites(
                         int(percent), project_id, current_project_path, list_of_bug_detecting_tests))
                 test_suites['percentage'] = int(percent)
