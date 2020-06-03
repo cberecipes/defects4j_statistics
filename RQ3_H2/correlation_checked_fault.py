@@ -46,6 +46,11 @@ def for_each_project(project_name):
                 test_suites = {}
                 test_suite_list = []
                 for i in range(0, int(test_suite_size)):
+                    print("for project " + str(project_name) +
+                          " with id " + str(project_id) +
+                          " for percent " + str(percent) +
+                          " for suite size " + str(i))
+
                     test_suite_list.append(create_test_suites(
                         int(percent), project_id, current_project_path, list_of_bug_detecting_tests))
                 test_suites['percentage'] = int(percent)
@@ -85,11 +90,13 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
     stop_condition_met = False
     score = 0
     created_test_suite_list = []
+    times_ran = 0
     while not stop_condition_met:
+        times_ran = times_ran + 1
         created_test_suite_list = add_new_test_into_list(list_of_test_methods, created_test_suite_list)
         score = compute_score(
             created_test_suite_list, coverable_lines, coverage_score)
-        if score >= percent or len(created_test_suite_list) == len(list_of_test_methods):
+        if score >= percent or len(created_test_suite_list) == len(list_of_test_methods) or times_ran > 100:
             stop_condition_met = True
     result['score'] = score
     result['tests'] = created_test_suite_list
@@ -110,12 +117,16 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
 def add_new_test_into_list(list_of_test_methods, created_test_suite_list):
     current_size = len(created_test_suite_list)
     list_to_shuffle = list(range(0, len(list_of_test_methods)))
-
+    times_ran = 0
     while not len(created_test_suite_list) >= current_size + 1:
+        times_ran = times_ran + 1
         random.shuffle(list_to_shuffle)
         selected_key = list_of_test_methods[list_to_shuffle[0]]
         if selected_key not in created_test_suite_list:
             created_test_suite_list.append(selected_key)
+
+        if times_ran > 20000:
+            break
 
     return created_test_suite_list
 
