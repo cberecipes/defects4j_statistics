@@ -1,6 +1,5 @@
 from os import path
-import random
-import sys
+from datetime import datetime
 
 from RQ2_H1 import format_as_csv
 from util import read_config
@@ -10,7 +9,7 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute():
-    random_number = str(random.randint(1, sys.maxsize - 1))
+    random_number = "{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
     file_path = 'RQ2_H1/results/does_coverage_increase__' + random_number
     result = for_list_of_projects()
     formatted_result = format_as_csv.format_contents(result)

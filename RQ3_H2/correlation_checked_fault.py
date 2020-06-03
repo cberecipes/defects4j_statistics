@@ -1,13 +1,13 @@
 import random
-import sys
 from os import path
+from datetime import datetime
 
 from RQ3_H2 import point_biserial_correlation
 from util import read_config
 from utils import utils
 
 project_config = read_config(['project_details.properties'])
-random_number = str(random.randint(1, sys.maxsize-1))
+random_number = "{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
 file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
 
 
@@ -24,7 +24,7 @@ def for_list_of_projects():
     result = []
     for project in project_list:
         tests = for_each_project(project)
-        utils.write_json_file(tests[0], file_path + '_' + project + '.json')
+        utils.write_json_file(tests, file_path + '_' + project + '.json')
         result.append({'tests': tests, 'project': project})
     return result
 

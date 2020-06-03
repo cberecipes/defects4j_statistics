@@ -8,7 +8,6 @@ project_config = read_config(['project_details.properties'])
 
 
 def compute(data_dump):
-
     percentage_range = project_config.get('projects', 'test_suite_coverage_percentage').split(",")
     project_list = project_config.get('projects', 'project_list').split(",")
     result = [['Project', 'Percent_coverage', 'Statement_coverage', 'Checked_coverage']]
@@ -39,8 +38,6 @@ def compute(data_dump):
                                         is_bug_included_c.append(
                                             p_tests['checked_coverage']['is_bug_detecting_test_included'])
                     try:
-                        print(scores_s, is_bug_included_s)
-                        print(scores_c, is_bug_included_c)
                         s_r = getattr(pointbiserialr(scores_s, is_bug_included_s), 'correlation')
                         if math.isnan(s_r):
                             if list(set(is_bug_included_s))[0]:
