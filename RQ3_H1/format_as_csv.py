@@ -1,7 +1,10 @@
 def format_contents(contents):
-    result = [['Project', 'project_id',
+    result = [['project', 'project_id',
                'ratio_statement_coverage',
                'ratio_checked_coverage',
+               'len_of_bug_detecting_tests',
+               'len_of_statement_covering_tests',
+               'len_of_checked_covering_tests',
                'score_statement_coverage',
                'score_checked_coverage']]
 
@@ -10,10 +13,16 @@ def format_contents(contents):
         for project_wise_result in project_wise_results['result']:
             tmp_result = [project_name,
                           project_wise_result['project_id'],
+
                           compute_ratio(len(project_wise_result['scores']['list_of_bug_detecting_tests']),
                                         len(project_wise_result['scores']['statement_covering_tests'])),
                           compute_ratio(len(project_wise_result['scores']['list_of_bug_detecting_tests']),
                                         len(project_wise_result['scores']['checked_covering_tests'])),
+
+                          len(project_wise_result['scores']['list_of_bug_detecting_tests']),
+                          len(project_wise_result['scores']['statement_covering_tests']),
+                          len(project_wise_result['scores']['checked_covering_tests']),
+
                           get_max_score(project_wise_result['scores']['statement_covering_tests']),
                           get_max_score(project_wise_result['scores']['checked_covering_tests'])
                           ]
@@ -32,5 +41,6 @@ def get_max_score(list_of_coverage_details):
 
 def compute_ratio(bug_detecting_len, covering_len):
     if covering_len == 0:
+        print(bug_detecting_len, covering_len)
         return covering_len
     return bug_detecting_len / covering_len

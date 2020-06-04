@@ -38,7 +38,8 @@ def for_each_project(project_name):
         if path.isdir(is_project_path_exist):
             result = {}
             scores = {}
-            patch_path = defects4j_project_path + "/" + project_name + "/" + "/patches/" + str(project_id) + ".src.patch"
+            patch_path = defects4j_project_path + "/" + project_name + "/" + "/patches/" + str(project_id) + \
+                ".src.patch"
             current_project_path = defects4j_project_path + "/" + project_name
             modified_classes = utils.get_modified_classes(project_id, current_project_path)
             statement_coverage = utils.get_statement_coverage(project_id, current_project_path, modified_classes)
@@ -118,4 +119,3 @@ def get_class_name(contains_class_name):
     for each_element in contains_class_name:
         if each_element.__contains__(".java"):
             return each_element.split("/java/")[1].replace("/", ".").replace(".java", "")
-
