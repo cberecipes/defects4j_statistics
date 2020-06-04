@@ -10,7 +10,7 @@ project_config = read_config(['project_details.properties'])
 def compute(data_dump):
     percentage_range = project_config.get('projects', 'test_suite_coverage_percentage').split(",")
     project_list = project_config.get('projects', 'project_list').split(",")
-    result = [['Project', 'Percent_coverage', 'Statement_coverage', 'Checked_coverage']]
+    result = [['project', 'percent_coverage', 'statement_coverage', 'checked_coverage']]
     for project in project_list:
         for d in data_dump:
             if d['project'] == project:
