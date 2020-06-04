@@ -1,5 +1,5 @@
 def format_contents(contents):
-    result = [['Project', 'project_id', 'statement_buggy', 'statement_fixed', 'statement_coverage_increase',
+    result = [['project', 'project_id', 'statement_buggy', 'statement_fixed', 'statement_coverage_increase',
                'checked_buggy', 'checked_fixed', 'checked_coverage_increase']]
     for project_wise_results in contents:
 
