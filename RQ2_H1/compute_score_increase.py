@@ -32,8 +32,8 @@ def for_each_project(project_name):
     # for each project fixed versions
     final_result = []
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
-        is_project_path_exist = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
-        if path.isdir(is_project_path_exist):
+        project_path = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
+        if path.isdir(project_path):
             result = {}
             scores = {}
             current_project_path = defects4j_project_path + "/" + project_name
@@ -66,6 +66,11 @@ def for_each_project(project_name):
             scores['checked_coverage'] = {'buggy': checked_coverage_buggy,
                                           'fixed': checked_coverage_fixed,
                                           'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
+
+            scores['mutation_score'] = {'buggy': get_mutation_score('mutation_score_buggy', project_path),
+                                        'fixed': get_mutation_score('mutation_score', project_path),
+                                        'list_of_bug_detecting_tests': list_of_bug_detecting_tests}
+
             result['scores'] = scores
             final_result.append(result)
 
@@ -87,3 +92,7 @@ def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
         score_value = score_value + len(value)
 
     return (score_value/coverable_line_nr)*100
+
+
+def get_mutation_score(score_type, score_path):
+    return utils.read_json_file(score_path + '/mutation_score.txt')[score_type]

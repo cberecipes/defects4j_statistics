@@ -42,6 +42,7 @@ def visualize_by_project_id(start, end):
         sorted_list = sorted(reader, key=lambda c_row: int(c_row['project_id']), reverse=False)
         statement_coverage_increase = []
         checked_coverage_increase = []
+        mutation_coverage_increase = []
         project_ids = []
 
         project_name = ','.join(set([s['project'] for s in sorted_list]))
@@ -49,6 +50,8 @@ def visualize_by_project_id(start, end):
         for row in islice(sorted_list, n[0], n[1]):
             checked_coverage_increase.append(float(row['checked_coverage_increase']))
             statement_coverage_increase.append(float(row['statement_coverage_increase']))
+            mutation_coverage_increase.append(float(row['mutation_coverage_increase']))
+
             project_ids.append(int(row['project_id']))
 
         ind = np.arange(len(range(n[0], n[1])))
@@ -60,6 +63,7 @@ def visualize_by_project_id(start, end):
 
         checked_coverage_bars = ax.bar(ind - width / 2, checked_coverage_increase, width)
         statement_coverage_bars = ax.bar(ind + width / 2, statement_coverage_increase, width)
+        mutation_coverage_bars = ax.bar(ind + width * 3 / 2, mutation_coverage_increase, width)
 
         # add some text for labels, title and axes ticks
         ax.set_ylabel('% increase in coverage score')
@@ -69,8 +73,8 @@ def visualize_by_project_id(start, end):
         ax.set_xticklabels(tuple(project_ids))
         # formula_legend = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
-        ax.legend((checked_coverage_bars[0], statement_coverage_bars[0]),
-                  ('Checked Coverage', 'Statement Coverage'))
+        ax.legend((checked_coverage_bars[0], statement_coverage_bars[0], mutation_coverage_bars[0]),
+                  ('Checked Coverage', 'Statement Coverage', 'Mutation Coverage'))
 
         # autolabel(ax, checked_coverage_bars)
         # autolabel(ax, statement_coverage_bars)
@@ -91,6 +95,8 @@ def visualize_whole_project():
         sum_checked_fixed = 0
         sum_coverage_buggy = 0
         sum_coverage_fixed = 0
+        sum_mutation_buggy = 0
+        sum_mutation_fixed = 0
         project_name = set()
         for row in reader:
             sum_checked_buggy = sum_checked_buggy + float(row['checked_buggy'])
@@ -99,26 +105,31 @@ def visualize_whole_project():
             sum_coverage_buggy = sum_coverage_buggy + float(row['statement_buggy'])
             sum_coverage_fixed = sum_coverage_fixed + float(row['statement_fixed'])
 
+            sum_mutation_buggy = sum_mutation_buggy + float(row['mutation_buggy'])
+            sum_mutation_fixed = sum_mutation_fixed + float(row['mutation_fixed'])
+
             project_name.add(row['project'])
 
         checked_coverage_increase_per = compute_percent_increase(sum_checked_buggy, sum_checked_fixed)
         statement_coverage_increase_per = compute_percent_increase(sum_coverage_buggy, sum_coverage_fixed)
+        mutation_coverage_increase_per = compute_percent_increase(sum_mutation_buggy, sum_mutation_fixed)
 
         checked_coverage_increase = [sum_checked_buggy, sum_checked_fixed]
         statement_coverage_increase = [sum_coverage_buggy, sum_coverage_fixed]
+        mutation_coverage_increase = [sum_mutation_buggy, sum_mutation_fixed]
 
-        checked_coverage_label = ['',
-                                  'inc:' + str(round(checked_coverage_increase_per, 3))]
-        statement_coverage_label = ['',
-                                    'inc: ' + str(round(statement_coverage_increase_per, 3))]
+        checked_coverage_label = ['', 'inc:' + str(round(checked_coverage_increase_per, 3))]
+        statement_coverage_label = ['', 'inc: ' + str(round(statement_coverage_increase_per, 3))]
+        mutation_coverage_label = ['', 'inc: ' + str(round(mutation_coverage_increase_per, 3))]
 
         project_name = ','.join([s for s in project_name])
         ind = np.arange(2)
-        width = 0.35
+        width = 0.3
         fig, ax = plt.subplots()
 
         checked_coverage_bars = ax.bar(ind - width / 2, checked_coverage_increase, width)
         statement_coverage_bars = ax.bar(ind + width / 2, statement_coverage_increase, width)
+        mutation_coverage_bars = ax.bar(ind + width * 3 / 2, mutation_coverage_increase, width)
 
         ax.set_ylabel('sum of coverage score of all projects')
         ax.set_xlabel('Project: ' + project_name)
@@ -128,11 +139,12 @@ def visualize_whole_project():
 
         # formula_legend = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
-        ax.legend((checked_coverage_bars[0], statement_coverage_bars[0]),
-                  ('Checked Coverage', 'Statement Coverage'), loc='lower left')
+        ax.legend((checked_coverage_bars[0], statement_coverage_bars[0], mutation_coverage_bars[0]),
+                  ('Checked Coverage', 'Statement Coverage', 'Mutation Coverage'), loc='lower left')
 
         autolabel(ax, checked_coverage_bars, checked_coverage_label)
         autolabel(ax, statement_coverage_bars, statement_coverage_label)
+        autolabel(ax, mutation_coverage_bars, mutation_coverage_label)
 
 
         # save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_' +
@@ -142,7 +154,7 @@ def visualize_whole_project():
         plt.show()
 
 
-visualize_by_project_id(0, 30)
+# visualize_by_project_id(0, 1)
 visualize_whole_project()
 
 
