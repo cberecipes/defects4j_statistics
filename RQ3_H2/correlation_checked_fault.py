@@ -2,7 +2,7 @@ import random
 from os import path
 from datetime import datetime
 
-from RQ3_H2 import point_biserial_correlation
+from RQ3_H2 import point_biserial_correlation_v2
 from util import read_config
 from utils import utils
 
@@ -14,8 +14,10 @@ file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
 def compute():
     result = for_list_of_projects()
     # result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
-    point_bc = point_biserial_correlation.compute(result)
-    utils.write_list_as_csv(point_bc, file_path + '.csv')
+    formatted_result = point_biserial_correlation_v2.compute(result)
+    utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
+    utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
+
     utils.write_json_file(result, file_path + '_all.json')
 
 
@@ -90,25 +92,31 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
     created_test_suite_list = []
     times_ran = 0
     while not stop_condition_met:
+        # stop_condition_met = True
         times_ran = times_ran + 1
+        score_old = compute_score(created_test_suite_list, coverable_lines, coverage_score)
+        old_list = created_test_suite_list.copy()
         created_test_suite_list = add_new_test_into_list(list_of_test_methods, created_test_suite_list)
-        score = compute_score(
-            created_test_suite_list, coverable_lines, coverage_score)
+        score = compute_score(created_test_suite_list, coverable_lines, coverage_score)
+        # if score <= score_old and len(created_test_suite_list) > len(old_list):
+        #     created_test_suite_list = created_test_suite_list[:-1]
         if score >= percent or len(created_test_suite_list) == len(list_of_test_methods) or times_ran > 100:
             stop_condition_met = True
-    result['score'] = score
-    result['tests'] = created_test_suite_list
-    result['is_bug_detecting_test_included'] = False
-    for bug_detecting_test in bug_detecting_tests:
-        if bug_detecting_test in created_test_suite_list:
-            result['is_bug_detecting_test_included'] = True
 
-    if result['score'] >= percent:
+    if score >= percent:
+        result['score'] = score
+        result['t_score'] = percent
+        result['tests'] = created_test_suite_list
+        result['is_bug_detecting_test_included'] = False
+        for bug_detecting_test in bug_detecting_tests:
+            if bug_detecting_test in created_test_suite_list:
+                result['is_bug_detecting_test_included'] = True
         return result
     else:
-        result['score'] = 0
-        result['tests'] = []
-        result['is_bug_detecting_test_included'] = False
+        # result['score'] = 0
+        # result['t_score'] = 0
+        # result['tests'] = []
+        # result['is_bug_detecting_test_included'] = False
         return result
 
 
