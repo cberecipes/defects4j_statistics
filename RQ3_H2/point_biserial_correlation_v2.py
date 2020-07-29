@@ -23,12 +23,12 @@ def compute(data_dump):
     c_r = 'NA'
     for project in project_list:
         for d in data_dump:
+            scores_s = []
+            scores_c = []
+            is_bug_included_s = []
+            is_bug_included_c = []
             if d['project'] == project:
                 for percent in percentage_range:
-                    scores_s = []
-                    scores_c = []
-                    is_bug_included_s = []
-                    is_bug_included_c = []
                     s_r = 'NA'
                     c_r = 'NA'
                     for tests in d['tests']:
@@ -50,18 +50,18 @@ def compute(data_dump):
                                     except KeyError:
                                         pass
 
-                    if len(scores_c) > 0:
-                        try:
-                            scores_c_all[str(percent)] = scores_c_all[str(percent)] + \
-                                                         list(zip(scores_c, is_bug_included_c))
-                        except KeyError:
-                            scores_c_all[str(percent)] = list(zip(scores_c, is_bug_included_c))
+                if len(scores_c) > 0:
+                    try:
+                        scores_c_all[str(percent)] = scores_c_all[str(percent)] + \
+                                                     list(zip(scores_c, is_bug_included_c))
+                    except KeyError:
+                        scores_c_all[str(percent)] = list(zip(scores_c, is_bug_included_c))
 
-                        try:
-                            scores_s_all[str(percent)] = scores_s_all[str(percent)] + \
-                                                         list(zip(scores_s, is_bug_included_s))
-                        except KeyError:
-                            scores_s_all[str(percent)] = list(zip(scores_s, is_bug_included_s))
+                    try:
+                        scores_s_all[str(percent)] = scores_s_all[str(percent)] + \
+                                                     list(zip(scores_s, is_bug_included_s))
+                    except KeyError:
+                        scores_s_all[str(percent)] = list(zip(scores_s, is_bug_included_s))
 
     select_items = min([len(scores_c_all[idx]) for idx in scores_c_all])
 
@@ -83,6 +83,7 @@ def compute(data_dump):
         result.append(['project', r_scores_s[_], r_is_bug_included_s[_], r_scores_c[_], r_is_bug_included_c[_]])
 
     try:
+        print(r_is_bug_included_s, r_scores_s)
         s_r = getattr(pointbiserialr(r_is_bug_included_s, r_scores_s), 'correlation')
 
         if math.isnan(s_r):
@@ -94,6 +95,7 @@ def compute(data_dump):
         pass
 
     try:
+        print(r_is_bug_included_c, r_scores_c)
         c_r = getattr(pointbiserialr(r_is_bug_included_c, r_scores_c), 'correlation')
         if math.isnan(c_r):
             if list(set(r_is_bug_included_c))[0]:
@@ -107,3 +109,13 @@ def compute(data_dump):
 
     final_result = {'for_csv': result, 'point_biserial_result': correlation_csv}
     return final_result
+
+
+def compute_test():
+    r_is_bug_included_c = [5, 5, 10, 10, 15, 15, 20, 20, 25, 25, 30, 30, 35, 35, 40, 40, 45, 45, 50, 50, 55, 55, 60, 60, 65, 65, 70, 70, 75, 75, 80, 80, 85, 85, 90, 90, 95, 95, 100, 100]
+    r_scores_c = [False, False, False, False, False, False, False, False, False, False, False, False, False, True, False, False, True, False, True, False, False, True, False, False, True, True, True, True, False, True, False, False, True, False, True, True, True, True, True, True]
+    c_r = getattr(pointbiserialr(r_is_bug_included_c, r_scores_c), 'correlation')
+    print(c_r)
+
+
+compute_test()

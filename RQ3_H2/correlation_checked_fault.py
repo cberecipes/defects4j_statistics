@@ -2,7 +2,7 @@ import random
 from os import path
 from datetime import datetime
 
-from RQ3_H2 import point_biserial_correlation_v2
+from RQ3_H2 import point_biserial_correlation_v3
 from util import read_config
 from utils import utils
 
@@ -14,7 +14,7 @@ file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
 def compute():
     result = for_list_of_projects()
     # result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
-    formatted_result = point_biserial_correlation_v2.compute(result)
+    formatted_result = point_biserial_correlation_v3.compute(result)
     utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
     utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
 
@@ -76,12 +76,17 @@ def create_test_suites(percent, project_id, current_project_path, list_of_bug_de
         project_id, current_project_path, modified_classes, "checked_coverable_lines")
 
     # For each modified classes
-    result['statement_coverage'] = create_test_suite(
-        percent, list_of_test_methods, statement_coverage_coverable_lines, statement_coverage,
-        list_of_bug_detecting_tests)
-    result['checked_coverage'] = create_test_suite(
+    tmp_statement_result = create_test_suite(
+       percent, list_of_test_methods, statement_coverage_coverable_lines, statement_coverage,
+       list_of_bug_detecting_tests)
+    tmp_checked_result = create_test_suite(
         percent, list_of_test_methods, checked_coverage_coverable_lines, checked_coverage,
         list_of_bug_detecting_tests)
+
+    if not (len(tmp_checked_result.items()) <= 0 or len(tmp_statement_result.items()) <= 0):
+        result['statement_coverage'] = tmp_statement_result
+        result['checked_coverage'] = tmp_checked_result
+
     return result
 
 
@@ -90,17 +95,17 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
     stop_condition_met = False
     score = 0
     created_test_suite_list = []
-    times_ran = 0
+    wrk_list_of_test_methods = list_of_test_methods.copy()
+
     while not stop_condition_met:
-        # stop_condition_met = True
-        times_ran = times_ran + 1
-        score_old = compute_score(created_test_suite_list, coverable_lines, coverage_score)
-        old_list = created_test_suite_list.copy()
-        created_test_suite_list = add_new_test_into_list(list_of_test_methods, created_test_suite_list)
-        score = compute_score(created_test_suite_list, coverable_lines, coverage_score)
-        # if score <= score_old and len(created_test_suite_list) > len(old_list):
-        #     created_test_suite_list = created_test_suite_list[:-1]
-        if score >= percent or len(created_test_suite_list) == len(list_of_test_methods) or times_ran > 100:
+
+        if len(wrk_list_of_test_methods) > 0:
+            score = add_new_test_into_list_return_score(wrk_list_of_test_methods, created_test_suite_list,
+                                                        coverable_lines, coverage_score, bug_detecting_tests, score)
+        else:
+            stop_condition_met = True
+
+        if score >= percent:
             stop_condition_met = True
 
     if score >= percent:
@@ -113,28 +118,25 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
                 result['is_bug_detecting_test_included'] = True
         return result
     else:
-        # result['score'] = 0
-        # result['t_score'] = 0
-        # result['tests'] = []
-        # result['is_bug_detecting_test_included'] = False
         return result
 
 
-def add_new_test_into_list(list_of_test_methods, created_test_suite_list):
-    current_size = len(created_test_suite_list)
-    list_to_shuffle = list(range(0, len(list_of_test_methods)))
-    times_ran = 0
-    while not len(created_test_suite_list) >= current_size + 1:
-        times_ran = times_ran + 1
-        random.shuffle(list_to_shuffle)
-        selected_key = list_of_test_methods[list_to_shuffle[0]]
-        if selected_key not in created_test_suite_list:
-            created_test_suite_list.append(selected_key)
+def add_new_test_into_list_return_score(list_of_test_methods, created_test_suite_list, coverable_lines, coverage_score,
+                                        bug_detecting_tests, score):
+    selected_key = list_of_test_methods.pop(random.randint(0, len(list_of_test_methods) - 1))
+    # score = compute_score(created_test_suite_list, coverable_lines, coverage_score)
+    created_test_suite_list.append(selected_key)
+    new_score = compute_score(created_test_suite_list, coverable_lines, coverage_score)
 
-        if times_ran > 20000:
-            break
+    # print(new_score)
+    # if selected_key in bug_detecting_tests:
+    #     print(selected_key)
+    #     print(bug_detecting_tests)
 
-    return created_test_suite_list
+    if not (new_score > score or selected_key in bug_detecting_tests):
+        created_test_suite_list.remove(selected_key)
+
+    return new_score
 
 
 def compute_score(created_test_suite_list, coverable_lines, coverage_score):
