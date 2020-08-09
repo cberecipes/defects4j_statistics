@@ -110,7 +110,7 @@ def create_test_suite(percent, list_of_test_methods, coverable_lines, coverage_s
 
     if score >= percent:
         result['score'] = score
-        result['t_score'] = percent
+        # result['t_score'] = percent
         result['tests'] = created_test_suite_list
         result['is_bug_detecting_test_included'] = False
         for bug_detecting_test in bug_detecting_tests:
