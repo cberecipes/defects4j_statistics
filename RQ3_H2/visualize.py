@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 import csv
+import pandas
 
 from scipy.interpolate import interp1d
 
@@ -19,6 +20,10 @@ def get_latest_csv_path():
         exit(0)
     latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
+
+
+def get_correlation_file():
+    return str(get_project_root()) + results_folder + '/correlation_final_lang.txt'
 
 
 def autolabel(ax, rects, labels):
@@ -179,7 +184,7 @@ def visualize_as_bar_plot():
     plt.show()
 
 
-visualize_as_bar_plot()
+# visualize_as_bar_plot()
 
 
 def visualize_as_box_plot():
@@ -234,5 +239,40 @@ def visualize_as_box_plot():
         fig.savefig(save_path, dpi=100)
 
 
-visualize_as_box_plot()
+# visualize_as_box_plot()
 
+def visualize_correlation_as_bar():
+    names = []
+    checked_cor_score = []
+    statement_cor_score = []
+    with open(get_correlation_file()) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+        for row in reader:
+            checked_cor_score.append(float(row['checked']))
+            statement_cor_score.append(float(row['statement']))
+            names.append(row['name'])
+
+    print(names)
+    print(checked_cor_score)
+    print(statement_cor_score)
+    df = pandas.DataFrame(dict(graph=names[::-1], n=checked_cor_score[::-1], m=statement_cor_score[::-1]))
+
+    ind = np.arange(len(df))
+    width = 0.2
+
+    fig, ax = plt.subplots()
+    ax.barh(ind, df.n, width, label='Checked Coverage')
+    ax.barh(ind + width, df.m, width, label='Statement Coverage')
+
+    ax.set(yticks=ind + width, yticklabels=df.graph, ylim=[width - 4, len(df)])
+    ax.legend()
+
+    fig.set_size_inches(7, 15, forward=True)
+
+    plt.show()
+    file_name_to_save = "Lang"
+    save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save)
+    fig.savefig(save_path, dpi=100)
+
+
+visualize_correlation_as_bar()

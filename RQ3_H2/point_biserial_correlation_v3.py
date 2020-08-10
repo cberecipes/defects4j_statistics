@@ -79,17 +79,17 @@ def compute(data_dump):
             percentage_c.append(key)
             bug_detecting_included_c.append(val)
 
-    print(percentage_s)
-    print(bug_detecting_included_s)
-
-    print(percentage_c)
-    print(bug_detecting_included_c)
+    # print(percentage_s)
+    # print(bug_detecting_included_s)
+    #
+    # print(percentage_c)
+    # print(bug_detecting_included_c)
 
     s_r = getattr(pointbiserialr(percentage_s, bug_detecting_included_s), 'correlation')
     c_r = getattr(pointbiserialr(percentage_c, bug_detecting_included_c), 'correlation')
 
-    print("statement correlation" + str(s_r))
-    print("checked correlation" + str(c_r))
+    print("statement correlation: {}".format(str(s_r)))
+    print("checked correlation: {}".format(str(c_r)))
 
     # create data for CSV
 

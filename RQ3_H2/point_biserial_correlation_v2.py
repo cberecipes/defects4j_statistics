@@ -112,13 +112,13 @@ def compute(data_dump):
 
 
 def compute_test():
-    r_is_bug_included_c = [1, 2, 3, 4, 5]
-    r_scores_c = [False,  False, False, True, True]
+    r_is_bug_included_c = [5, 5, 25, 25, 30, 30, 80, 80]
+    r_scores_c = [False, False, True, True, True, True, True, True]
     c_r = getattr(pointbiserialr(r_is_bug_included_c, r_scores_c), 'correlation')
     print(c_r)
 
-    r_is_bug_included_c = [1, 2, 3, 4, 5]
-    r_scores_c = [True, True, True, True, True]
+    r_is_bug_included_c = [5, 5, 25, 25, 30, 30, 80, 80]
+    r_scores_c = [False, False, False, False, False, False, True, True]
     c_r = getattr(pointbiserialr(r_is_bug_included_c, r_scores_c), 'correlation')
     print(c_r)
 

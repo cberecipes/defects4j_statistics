@@ -6,29 +6,48 @@ from RQ3_H2 import point_biserial_correlation_v3
 from util import read_config
 from utils import utils
 
+
 project_config = read_config(['project_details.properties'])
 random_number = "{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
-file_path = 'RQ3_H2/results/point_biserial_correlation__' + random_number
+file_path = 'RQ3_H2/results/point_biserial_correlation__'
+static_correlation_path = 'RQ3_H2/results/correlation_final_lang.txt'
+
+
+# result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
+# formatted_result = point_biserial_correlation_v3.compute(result)
+# utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
+# utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
+#
+# utils.write_json_file(result, file_path + '_all.json')
+# visualize.visualize_correlation_as_bar(formatted_result['point_biserial_result'][1][0],
+#                                        formatted_result['point_biserial_result'][1][1], 'test')
 
 
 def compute():
-    result = for_list_of_projects()
-    # result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
-    formatted_result = point_biserial_correlation_v3.compute(result)
-    utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
-    utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
-
-    utils.write_json_file(result, file_path + '_all.json')
-
-
-def for_list_of_projects():
     project_list = project_config.get('projects', 'project_list').split(",")
-    result = []
+    # result = []
     for project in project_list:
-        tests = for_each_project(project)
-        utils.write_json_file(tests, file_path + '_' + project + '.json')
-        result.append({'tests': tests, 'project': project})
-    return result
+        for_each_project(project)
+        # utils.write_json_file(tests, file_path + '_' + project + '.json')
+        #
+        # formatted_result = point_biserial_correlation_v3.compute([{'tests': tests}])
+        # utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
+        # utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
+        #
+        # utils.write_json_file([{'tests': tests}], file_path + '_all.json')
+        #
+        # utils.write_list_as_csv([[formatted_result['point_biserial_result'][1][0],
+        #                          formatted_result['point_biserial_result'][1][1],
+        #                          str(project) + '-' + str(tests[0]['project_id'])]],
+        #                         static_correlation_path)
+
+        #
+        # visualize.visualize_correlation_as_bar(formatted_result['point_biserial_result'][1][0],
+        #                                        formatted_result['point_biserial_result'][1][1],
+        #                                        str(project) + '_' + str(tests[0]['project_id']))
+    #
+    #     result.append({'tests': tests})
+    # return result
 
 
 def for_each_project(project_name):
@@ -36,8 +55,9 @@ def for_each_project(project_name):
     defects4j_project_path = project_config.get('paths', 'defects4j_project_path')
     percentage_range = project_config.get('projects', 'test_suite_coverage_percentage').split(",")
     test_suite_size = project_config.get('projects', 'test_suite_size')
-    final_result = []
+
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
+        print("running for project id {}".format(project_id))
         result = {}
         is_project_path_exist = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
         if path.isdir(is_project_path_exist):
@@ -60,8 +80,24 @@ def for_each_project(project_name):
             result['project_id'] = project_id
             result['tests'] = test_suite_size_percent
             result['list_of_bug_detecting_tests'] = list_of_bug_detecting_tests
-            final_result.append(result)
-    return final_result
+
+        if len(result) > 0:
+            file_name = "{}{}_{}".format(file_path, project_name, project_id)
+
+            try:
+                formatted_result = point_biserial_correlation_v3.compute([{'tests': [result]}])
+                utils.write_json_file([result], file_name + '.json')
+                utils.write_list_as_csv(formatted_result['for_csv'], file_name + '.csv')
+                utils.write_list_as_csv(formatted_result['point_biserial_result'], file_name + '_correlation.txt')
+
+                # utils.write_json_file([{'tests': [result]}], file_path + '_all.json')
+
+                utils.write_list_as_csv([[formatted_result['point_biserial_result'][1][0],
+                                          formatted_result['point_biserial_result'][1][1],
+                                          str(project_name) + '-' + str([result][0]['project_id'])]],
+                                        static_correlation_path)
+            except ValueError:
+                utils.write_json_file(["Error while computing coverage scores"], file_name + '.error')
 
 
 def create_test_suites(percent, project_id, current_project_path, list_of_bug_detecting_tests):
