@@ -221,5 +221,8 @@ fabric.properties
 
 
 #project specific
-**/results/*
+**RQ1_H1/results/*
+**RQ2_H1/results/*
+**RQ3_H1/results/*
+**RQ3_H2/results/*
 **/.idea/*
