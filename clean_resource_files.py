@@ -21,7 +21,6 @@ def clean_source_dir():
 
 def is_deletable(name):
     return name.endswith('_dir') or \
-           name.endswith('all_test_methods') or \
            name.endswith('running.log') or \
            name.endswith('tracing_completed.json')
 

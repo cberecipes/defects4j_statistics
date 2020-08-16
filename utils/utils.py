@@ -96,6 +96,23 @@ def get_coverable_lines(project_id, current_project_path, modified_classes):
     return required_coverage
 
 
+def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
+    score = {}
+    for key, value in coverage.items():
+        for key2, value2 in value.items():
+            if key2 not in exclude_this:
+                try:
+                    score[key] = list(set(score[key] + value2))
+                except KeyError:
+                    score[key] = value2
+
+    score_value = 0
+    for key, value in score.items():
+        score_value = score_value + len(value)
+
+    return (score_value/coverable_line_nr)*100
+
+
 def read_file(file_path):
     if not path.exists(file_path):
         # print("File not exist!" + file_path)
