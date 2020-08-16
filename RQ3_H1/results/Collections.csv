@@ -1,0 +1,5 @@
+project,project_id,ratio_statement_coverage,ratio_checked_coverage,len_of_bug_detecting_tests,len_of_statement_covering_tests,len_of_checked_covering_tests,score_statement_coverage,score_checked_coverage
+Collections,25,1.0,1.0,1,1,1,66.66666666666666,66.66666666666666
+Collections,26,0.5,0.5,1,2,2,100.0,50.0
+Collections,27,0,0,1,0,0,0,0
+Collections,28,0,0,1,0,0,0,0

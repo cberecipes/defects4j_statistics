@@ -1,0 +1,7 @@
+project,project_id,ratio_statement_coverage,ratio_checked_coverage,len_of_bug_detecting_tests,len_of_statement_covering_tests,len_of_checked_covering_tests,score_statement_coverage,score_checked_coverage
+JacksonXml,1,0.04,0,3,75,0,60.0,0
+JacksonXml,2,0.012195121951219513,0.25,1,82,4,81.25,68.75
+JacksonXml,3,0.2,0.3333333333333333,1,5,3,50.0,50.0
+JacksonXml,4,1.0,0,1,1,0,75.0,0
+JacksonXml,5,0.3333333333333333,0,1,3,0,100.0,0
+JacksonXml,6,0.8333333333333334,0,5,6,0,45.45454545454545,0
