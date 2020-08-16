@@ -14,9 +14,20 @@ from itertools import islice
 
 from matplotlib.patches import Rectangle
 
-from util import get_project_root
+from util import get_project_root, read_config
 
 results_folder = '/RQ3_H1/results'
+project_config = read_config(['../project_details.properties'])
+
+
+def get_configured_csv_path():
+    project_list = project_config.get('projects', 'project_list').split(",")
+
+    if len(project_list) > 1:
+        print("reduce number of projects to 1")
+        exit(0)
+    project_list = project_list[0]
+    return str(get_project_root()) + results_folder + '/' + project_list + '.csv'
 
 
 def get_latest_csv_path():
@@ -78,8 +89,8 @@ def autolabel(rects, labels):
         idx = idx + 1
 
 
-def  visualize_whole_project():
-    with open(get_latest_csv_path()) as csv_file:
+def visualize_whole_project():
+    with open(get_configured_csv_path()) as csv_file:
         file_name_to_save = os.path.basename(csv_file.name).split(".")[0]
         reader = csv.DictReader(csv_file, delimiter=',')
         sum_len_of_bug_detecting_tests = 0
@@ -111,17 +122,11 @@ def  visualize_whole_project():
 
         # add some text for labels, title and axes ticks
         ax.set_ylabel('Ratio')
-        ax.set_xlabel('Project: ' + project_name)
+        ax.set_xlabel(project_name)
         # ax.set_title('Overall result: \n Ratio between bug detecting and covering tests for project: ' + project_name)
         ax.set_xticks(tuple())
         ax.set_xticklabels(tuple(''))
-
-        formula_legend = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-
-        ax.legend((formula_legend, checked_coverage_bars[0], statement_coverage_bars[0]),
-                  ('Ratio = No. of bug detecting tests / \nNo. of Covering tests',
-                   'Checked Coverage',
-                   'Statement Coverage'))
+        ax.legend().remove()
 
         autolabel1(ax, checked_coverage_bars, checked_coverage_label)
         autolabel1(ax, statement_coverage_bars, statement_coverage_label)
@@ -129,7 +134,7 @@ def  visualize_whole_project():
         # save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_' +
         # str(max(project_ids))
         save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_whole_result'
-        fig.savefig(save_path, dpi=100)
+        fig.savefig(save_path, dpi=100, width=4)
         plt.show()
 
 
