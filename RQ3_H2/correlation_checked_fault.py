@@ -94,6 +94,10 @@ def for_each_project(project_name):
 
                 utils.write_list_as_csv([[formatted_result['point_biserial_result'][1][0],
                                           formatted_result['point_biserial_result'][1][1],
+
+                                          formatted_result['point_biserial_result'][1][2],
+                                          formatted_result['point_biserial_result'][1][3],
+
                                           str(project_name) + '-' + str([result][0]['project_id'])]],
                                         static_correlation_path)
             except ValueError:

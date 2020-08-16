@@ -1,9 +1,7 @@
-import math
 import random
-from itertools import chain
 
 from scipy.stats import pointbiserialr
-from util import read_config
+from util import read_config, remove_exponent
 
 
 project_config = read_config(['project_details.properties'])
@@ -84,12 +82,17 @@ def compute(data_dump):
     #
     # print(percentage_c)
     # print(bug_detecting_included_c)
+    pbsr_statement = pointbiserialr(percentage_s, bug_detecting_included_s)
+    pbsr_checked = pointbiserialr(percentage_c, bug_detecting_included_c)
 
-    s_r = getattr(pointbiserialr(percentage_s, bug_detecting_included_s), 'correlation')
-    c_r = getattr(pointbiserialr(percentage_c, bug_detecting_included_c), 'correlation')
+    s_r = remove_exponent(getattr(pbsr_statement, 'correlation'))
+    sp_value = remove_exponent(getattr(pbsr_statement, 'pvalue'))
 
-    print("statement correlation: {}".format(str(s_r)))
-    print("checked correlation: {}".format(str(c_r)))
+    c_r = remove_exponent(getattr(pbsr_checked, 'correlation'))
+    cp_value = remove_exponent(getattr(pbsr_checked, 'pvalue'))
+
+    print("statement correlation: {}, {}".format(str(s_r), str(sp_value)))
+    print("checked correlation: {}, {}".format(str(c_r), str(cp_value)))
 
     # create data for CSV
 
@@ -98,6 +101,6 @@ def compute(data_dump):
                       bug_detecting_included_c[idx]]
         result.append(tmp_result)
 
-    correlation_csv.append([s_r, c_r])
+    correlation_csv.append([s_r, sp_value, c_r, cp_value])
 
     return {'for_csv': result, 'point_biserial_result': correlation_csv}

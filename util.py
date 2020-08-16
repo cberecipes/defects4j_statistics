@@ -1,4 +1,5 @@
 import configparser
+import decimal
 from os import path
 from pathlib import Path
 import os
@@ -47,3 +48,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
             copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
+
+
+def remove_exponent(value):
+
+    return format(value, '.8f')
