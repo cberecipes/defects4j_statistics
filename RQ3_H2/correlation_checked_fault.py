@@ -13,41 +13,10 @@ file_path = 'RQ3_H2/results/point_biserial_correlation__'
 static_correlation_path = 'RQ3_H2/results/correlation_final_lang.txt'
 
 
-# result = utils.read_json_file('RQ3_H2/results/point_biserial_correlation__7203284079767766139.json')
-# formatted_result = point_biserial_correlation_v3.compute(result)
-# utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
-# utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
-#
-# utils.write_json_file(result, file_path + '_all.json')
-# visualize.visualize_correlation_as_bar(formatted_result['point_biserial_result'][1][0],
-#                                        formatted_result['point_biserial_result'][1][1], 'test')
-
-
 def compute():
     project_list = project_config.get('projects', 'project_list').split(",")
-    # result = []
     for project in project_list:
         for_each_project(project)
-        # utils.write_json_file(tests, file_path + '_' + project + '.json')
-        #
-        # formatted_result = point_biserial_correlation_v3.compute([{'tests': tests}])
-        # utils.write_list_as_csv(formatted_result['for_csv'], file_path + '.csv')
-        # utils.write_list_as_csv(formatted_result['point_biserial_result'], file_path + '_correlation.txt')
-        #
-        # utils.write_json_file([{'tests': tests}], file_path + '_all.json')
-        #
-        # utils.write_list_as_csv([[formatted_result['point_biserial_result'][1][0],
-        #                          formatted_result['point_biserial_result'][1][1],
-        #                          str(project) + '-' + str(tests[0]['project_id'])]],
-        #                         static_correlation_path)
-
-        #
-        # visualize.visualize_correlation_as_bar(formatted_result['point_biserial_result'][1][0],
-        #                                        formatted_result['point_biserial_result'][1][1],
-        #                                        str(project) + '_' + str(tests[0]['project_id']))
-    #
-    #     result.append({'tests': tests})
-    # return result
 
 
 def for_each_project(project_name):
@@ -89,8 +58,6 @@ def for_each_project(project_name):
                 utils.write_json_file([result], file_name + '.json')
                 utils.write_list_as_csv(formatted_result['for_csv'], file_name + '.csv')
                 utils.write_list_as_csv(formatted_result['point_biserial_result'], file_name + '_correlation.txt')
-
-                # utils.write_json_file([{'tests': [result]}], file_path + '_all.json')
 
                 utils.write_list_as_csv([[formatted_result['point_biserial_result'][1][0],
                                           formatted_result['point_biserial_result'][1][1],
