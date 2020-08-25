@@ -1,4 +1,3 @@
-from os import path
 from datetime import datetime
 
 from RQ2_H1 import format_as_csv
@@ -35,6 +34,7 @@ def for_each_project(project_name):
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
         project_path = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
         if path.isdir(project_path):
+            print(project_path)
             result = {}
             scores = {}
             current_project_path = defects4j_project_path + "/" + project_name
@@ -77,4 +77,7 @@ def for_each_project(project_name):
 
 
 def get_mutation_score(score_type, score_path):
-    return utils.read_json_file(score_path + '/mutation_score.txt')[score_type]
+    try:
+        return utils.read_json_file(score_path + '/mutation_score.txt')[score_type]
+    except KeyError:
+        return 0

@@ -5,12 +5,21 @@ import os
 import csv
 from itertools import islice
 
-from matplotlib.patches import Rectangle
-
 from RQ2_H1.format_as_csv import compute_percent_increase
-from util import get_project_root
+from util import get_project_root, read_config
 
 results_folder = '/RQ2_H1/results'
+project_config = read_config(['../project_details.properties'])
+
+
+def get_configured_csv_path():
+    project_list = project_config.get('projects', 'project_list').split(",")
+
+    if len(project_list) > 1:
+        print("reduce number of projects to 1")
+        exit(0)
+    project_list = project_list[0]
+    return str(get_project_root()) + results_folder + '/' + project_list + '.csv'
 
 
 def get_latest_csv_path():
@@ -88,7 +97,7 @@ def visualize_by_project_id(start, end):
 
 
 def visualize_whole_project():
-    with open(get_latest_csv_path()) as csv_file:
+    with open(get_configured_csv_path()) as csv_file:
         file_name_to_save = os.path.basename(csv_file.name).split(".")[0]
         reader = csv.DictReader(csv_file, delimiter=',')
         sum_checked_buggy = 0
@@ -131,17 +140,18 @@ def visualize_whole_project():
         statement_coverage_bars = ax.bar(ind + width / 2, statement_coverage_increase, width)
         mutation_coverage_bars = ax.bar(ind + width * 3 / 2, mutation_coverage_increase, width)
 
-        ax.set_ylabel('sum of coverage score of all projects')
-        ax.set_xlabel('Project: ' + project_name)
-        ax.set_title('Overall result: coverage increase of bug detecting tests')
+        # ax.set_ylabel('sum of coverage score of all projects')
+        ax.set_xlabel(project_name)
+        # ax.set_title('Overall result: coverage increase of bug detecting tests')
         ax.set_xticks(tuple(ind + width / 120))
         ax.set_xticklabels(tuple(['buggy version', 'fixed version']))
 
         # formula_legend = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
-        ax.legend((checked_coverage_bars[0], statement_coverage_bars[0], mutation_coverage_bars[0]),
-                  ('Checked Coverage', 'Statement Coverage', 'Mutation Coverage'), loc='lower left')
+        # ax.legend((checked_coverage_bars[0], statement_coverage_bars[0], mutation_coverage_bars[0]),
+        #           ('Checked Coverage', 'Statement Coverage', 'Mutation Coverage'), loc='lower left')
 
+        ax.legend().remove()
         autolabel(ax, checked_coverage_bars, checked_coverage_label)
         autolabel(ax, statement_coverage_bars, statement_coverage_label)
         autolabel(ax, mutation_coverage_bars, mutation_coverage_label)

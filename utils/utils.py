@@ -109,8 +109,11 @@ def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
     score_value = 0
     for key, value in score.items():
         score_value = score_value + len(value)
-
-    return (score_value/coverable_line_nr)*100
+    try:
+        return (score_value/coverable_line_nr)*100
+    except ZeroDivisionError:
+        print("Divide by zero error")
+        return 0
 
 
 def read_file(file_path):
