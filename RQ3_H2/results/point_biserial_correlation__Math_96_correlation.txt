@@ -1,0 +1,2 @@
+statement_correlation,checked_correlation
+0.36358510,0.00000000,0.52368525,0.00000000
