@@ -210,7 +210,6 @@ def visualize_as_box_plot():
 
         try:
             with open(path) as csv_file:
-                file_name_to_save = os.path.basename(csv_file.name).split(".")[0]
                 reader = csv.DictReader(csv_file, delimiter=',')
                 for row in reader:
                     if row['statement_coverage'] == "True":
@@ -223,10 +222,7 @@ def visualize_as_box_plot():
                     if row['checked_coverage'] == "False":
                         checked_coverage_f.append(int(row['percent_coverage_c']))
         except FileNotFoundError:
-            print(path)
             pass
-
-        print(len(checked_coverage_f), len(checked_coverage_t), len(statement_coverage_f), len(statement_coverage_t))
 
     data_to_plot = [checked_coverage_f, checked_coverage_t, statement_coverage_f, statement_coverage_t]
     print(len(checked_coverage_f), len(checked_coverage_t), len(statement_coverage_f), len(statement_coverage_t))
@@ -237,23 +233,23 @@ def visualize_as_box_plot():
 
     ax.set_ylabel('No. of tests with % coverage score')
     ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
-    # ax.set_title('Box-plot showing higher coverage improves fault detecting rate for project: Lang')
+    ax.set_title(project_list)
     # ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
 
     # Create the boxplot
     bp = ax.boxplot(data_to_plot)
-    bp['medians'][0].set(color='#4070A0', linewidth=2)
-    bp['medians'][1].set(color='#4070A0', linewidth=2)
+    bp['medians'][0].set(color='#3d85c6', linewidth=4)
+    bp['medians'][1].set(color='#3d85c6', linewidth=4)
 
-    bp['medians'][2].set(color='orange', linewidth=2)
-    bp['medians'][3].set(color='orange', linewidth=2)
+    bp['medians'][2].set(color='#e69138', linewidth=4)
+    bp['medians'][3].set(color='#e69138', linewidth=4)
 
     # ax.legend((bp['medians'][0], bp['medians'][2]), ('Checked Coverage', 'Statement Coverage'))
     ax.legend((bp['medians'][0], bp['medians'][2]), ('Checked Coverage', 'Statement Coverage')).remove()
 
     plt.show()
-    save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_box-plot'
+    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
     fig.savefig(save_path, dpi=100)
 
 
