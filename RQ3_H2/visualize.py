@@ -4,12 +4,14 @@ import glob
 import os
 import csv
 import pandas
+from pyaml import print
 
 from scipy.interpolate import interp1d
 
-from util import get_project_root
+from util import get_project_root, read_config
 
 results_folder = '/RQ3_H2/results'
+project_config = read_config(['../project_details.properties'])
 
 
 def get_latest_csv_path():
@@ -188,55 +190,71 @@ def visualize_as_bar_plot():
 
 
 def visualize_as_box_plot():
-    with open(get_latest_csv_path()) as csv_file:
-        file_name_to_save = os.path.basename(csv_file.name).split(".")[0]
-        reader = csv.DictReader(csv_file, delimiter=',')
-        statement_coverage_t = []
-        statement_coverage_f = []
-        checked_coverage_t = []
-        checked_coverage_f = []
-        project_name = set()
-        for row in reader:
-            if row['statement_coverage'] == "True":
-                statement_coverage_t.append(int(row['percent_coverage_s']))
-            if row['checked_coverage'] == "True":
-                checked_coverage_t.append(int(row['percent_coverage_c']))
+    project_list = project_config.get('projects', 'project_list').split(",")
 
-            if row['statement_coverage'] == "False":
-                statement_coverage_f.append(int(row['percent_coverage_s']))
-            if row['checked_coverage'] == "False":
-                checked_coverage_f.append(int(row['percent_coverage_c']))
+    if len(project_list) > 1:
+        print("reduce number of projects to 1")
+        exit(0)
+    project_list = project_list[0]
 
-            project_name.add(row['project'])
+    statement_coverage_t = []
+    statement_coverage_f = []
+    checked_coverage_t = []
+    checked_coverage_f = []
 
-        project_name = ','.join([s for s in project_name])
+    project_range = project_config.get('projects', project_list).split(",")
 
-        data_to_plot = [checked_coverage_f, checked_coverage_t, statement_coverage_f, statement_coverage_t]
+    for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
+        file_name = "/point_biserial_correlation__" + project_list + "_" + str(project_id) + ".csv"
+        path = str(get_project_root()) + results_folder + file_name
+
+        try:
+            with open(path) as csv_file:
+                file_name_to_save = os.path.basename(csv_file.name).split(".")[0]
+                reader = csv.DictReader(csv_file, delimiter=',')
+                for row in reader:
+                    if row['statement_coverage'] == "True":
+                        statement_coverage_t.append(int(row['percent_coverage_s']))
+                    if row['checked_coverage'] == "True":
+                        checked_coverage_t.append(int(row['percent_coverage_c']))
+
+                    if row['statement_coverage'] == "False":
+                        statement_coverage_f.append(int(row['percent_coverage_s']))
+                    if row['checked_coverage'] == "False":
+                        checked_coverage_f.append(int(row['percent_coverage_c']))
+        except FileNotFoundError:
+            print(path)
+            pass
+
         print(len(checked_coverage_f), len(checked_coverage_t), len(statement_coverage_f), len(statement_coverage_t))
-        fig = plt.figure(1, figsize=(9, 6))
 
-        # Create an axes instance
-        ax = fig.add_subplot(111)
+    data_to_plot = [checked_coverage_f, checked_coverage_t, statement_coverage_f, statement_coverage_t]
+    print(len(checked_coverage_f), len(checked_coverage_t), len(statement_coverage_f), len(statement_coverage_t))
+    fig = plt.figure(1, figsize=(9, 6))
 
-        ax.set_ylabel('No. of tests with % coverage score')
-        ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
-        ax.set_title('Box-plot showing higher coverage improves fault detecting rate for project: Lang')
-        # ax.set_xticks(ind + width / 2)
-        ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
+    # Create an axes instance
+    ax = fig.add_subplot(111)
 
-        # Create the boxplot
-        bp = ax.boxplot(data_to_plot)
-        bp['medians'][0].set(color='#4070A0', linewidth=2)
-        bp['medians'][1].set(color='#4070A0', linewidth=2)
+    ax.set_ylabel('No. of tests with % coverage score')
+    ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    # ax.set_title('Box-plot showing higher coverage improves fault detecting rate for project: Lang')
+    # ax.set_xticks(ind + width / 2)
+    ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
 
-        bp['medians'][2].set(color='orange', linewidth=2)
-        bp['medians'][3].set(color='orange', linewidth=2)
+    # Create the boxplot
+    bp = ax.boxplot(data_to_plot)
+    bp['medians'][0].set(color='#4070A0', linewidth=2)
+    bp['medians'][1].set(color='#4070A0', linewidth=2)
 
-        ax.legend((bp['medians'][0], bp['medians'][2]), ('Checked Coverage', 'Statement Coverage'))
+    bp['medians'][2].set(color='orange', linewidth=2)
+    bp['medians'][3].set(color='orange', linewidth=2)
 
-        plt.show()
-        save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_box-plot'
-        fig.savefig(save_path, dpi=100)
+    # ax.legend((bp['medians'][0], bp['medians'][2]), ('Checked Coverage', 'Statement Coverage'))
+    ax.legend((bp['medians'][0], bp['medians'][2]), ('Checked Coverage', 'Statement Coverage')).remove()
+
+    plt.show()
+    save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save) + '_box-plot'
+    fig.savefig(save_path, dpi=100)
 
 
 # visualize_as_box_plot()
@@ -275,4 +293,4 @@ def visualize_correlation_as_bar():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_correlation_as_bar()
+visualize_as_box_plot()
