@@ -210,6 +210,8 @@ def visualize_as_box_plot():
 
     ax.legend().remove()
     plt.show()
+    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
+    fig.savefig(save_path, dpi=100)
 
 
 visualize_as_box_plot()
