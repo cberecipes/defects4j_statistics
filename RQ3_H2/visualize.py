@@ -190,6 +190,9 @@ def visualize_as_bar_plot():
 
 
 def visualize_as_box_plot():
+    font = {'size': 18}
+
+    plt.rc('font', **font)
     project_list = project_config.get('projects', 'project_list').split(",")
 
     if len(project_list) > 1:
@@ -232,7 +235,7 @@ def visualize_as_box_plot():
     ax = fig.add_subplot(111)
 
     ax.set_ylabel('No. of tests with % coverage score')
-    ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    ax.set_xlabel('Indicates whether or not, a bug detecting test is included in \n generated test suite')
     ax.set_title(project_list)
     # ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
