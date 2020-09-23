@@ -195,18 +195,18 @@ def visualize_as_box_plot():
     data_to_plot = [statement_increase, checked_increase, mutation_increase]
     fig = plt.figure(1, figsize=(9, 6))
 
-    ax = fig.add_subplot()
+    ax = fig.add_subplot(111)
 
     ax.set_ylabel('% coverage score increase')
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title(project_list)
-    ax.set_xticks([1,2,3])
+    # ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage', 'Mutation score']))
 
-    ax.violinplot(data_to_plot, showmeans=True, showmedians=False)
-    # bp['medians'][0].set(color='#3d85c6', linewidth=2)
-    # bp['medians'][1].set(color='#e69138', linewidth=2)
-    # bp['medians'][2].set(color='#6aa84f', linewidth=2)
+    bp = ax.boxplot(data_to_plot)
+    bp['medians'][0].set(color='#3d85c6', linewidth=2)
+    bp['medians'][1].set(color='#e69138', linewidth=2)
+    bp['medians'][2].set(color='#6aa84f', linewidth=2)
 
     ax.legend().remove()
     plt.show()
