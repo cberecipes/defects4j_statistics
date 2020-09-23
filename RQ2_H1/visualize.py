@@ -198,32 +198,22 @@ def visualize_as_box_plot():
     data_to_plot = [statement_increase, checked_increase, mutation_increase]
     fig = plt.figure(1, figsize=(9, 6))
 
-    ax = fig.add_subplot()
+    ax = fig.add_subplot(111)
 
     ax.set_ylabel('% coverage score increase')
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title(project_list)
-    ax.set_xticks([1,2,3])
+    # ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage', 'Mutation score']))
 
-    bp = ax.violinplot(data_to_plot, showmeans=True, showmedians=True)
-
-    # loop over the paths of the mean lines
-    xy = [[l.vertices[:, 0].mean(), l.vertices[0, 1]] for l in bp['cmeans'].get_paths()]
-    xy = np.array(xy)
-
-    ax.scatter(xy[:, 0], xy[:, 1], s=121, c="crimson", marker="x", zorder=3)
-
-    # make lines invisible
-    bp['cmeans'].set_visible(False)
-
-    bp['bodies'][0].set(color='#e69138', linewidth=2)
-    bp['bodies'][1].set(color='#3d85c6', linewidth=2)
-    bp['bodies'][2].set(color='#6aa84f', linewidth=2)
+    bp = ax.boxplot(data_to_plot)
+    bp['medians'][0].set(color='#3d85c6', linewidth=2)
+    bp['medians'][1].set(color='#e69138', linewidth=2)
+    bp['medians'][2].set(color='#6aa84f', linewidth=2)
 
     ax.legend().remove()
     plt.show()
-    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_violin-plot'
+    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
     fig.savefig(save_path, dpi=100)
 
 
