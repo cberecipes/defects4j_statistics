@@ -168,6 +168,9 @@ def visualize_whole_project():
 # visualize_whole_project()
 
 def visualize_as_box_plot():
+    font = {'size': 18}
+
+    plt.rc('font', **font)
     project_list = project_config.get('projects', 'project_list').split(",")
 
     if len(project_list) > 1:
