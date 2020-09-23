@@ -194,4 +194,64 @@ def visualize_by_project_id(start, end):
 
 
 # visualize_by_project_id(0, 17)
-visualize_whole_project()
+# visualize_whole_project()
+
+
+def visualize_as_box_plot():
+    font = {'size': 18}
+
+    plt.rc('font', **font)
+    project_list = project_config.get('projects', 'project_list').split(",")
+
+    if len(project_list) > 1:
+        print("reduce number of projects to 1")
+        exit(0)
+    project_list = project_list[0]
+
+    ratio_stmt_coverage = []
+    ratio_checked_coverage = []
+
+    file_name = "/" + project_list + ".csv"
+    path = str(get_project_root()) + results_folder + file_name
+
+    with open(path) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in reader:
+            ratio_stmt_coverage.append(float(row['ratio_statement_coverage'])
+                                       if float(row['ratio_statement_coverage']) <= 1 else 1)
+            ratio_checked_coverage.append(float(row['ratio_checked_coverage'])
+                                          if float(row['ratio_checked_coverage']) <= 1 else 1)
+
+    data_to_plot = [ratio_stmt_coverage, ratio_checked_coverage]
+    fig = plt.figure(1, figsize=(9, 6))
+
+    ax = fig.add_subplot()
+
+    ax.set_ylabel('Ratio between the bug detecting and \n covering tests')
+    # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    ax.set_title(project_list)
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
+
+    bp = ax.violinplot(data_to_plot, showmeans=True, showmedians=True)
+
+    # loop over the paths of the mean lines
+    xy = [[l.vertices[:, 0].mean(), l.vertices[0, 1]] for l in bp['cmeans'].get_paths()]
+    xy = np.array(xy)
+
+    ax.scatter(xy[:, 0], xy[:, 1], s=121, c="crimson", marker="x", zorder=3)
+
+    # make lines invisible
+    bp['cmeans'].set_visible(False)
+
+    bp['bodies'][0].set(color='#e69138', linewidth=2)
+    bp['bodies'][1].set(color='#3d85c6', linewidth=2)
+
+    ax.legend().remove()
+    plt.show()
+    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_violin-plot'
+    fig.savefig(save_path, dpi=100)
+
+
+visualize_as_box_plot()
