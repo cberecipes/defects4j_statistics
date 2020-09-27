@@ -23,44 +23,34 @@ def shuffle_and_trim(list_to_shuffle, reduce_size):
 
 
 def compute(data_dump):
-    percentage_range = project_config.get('projects', 'test_suite_coverage_percentage').split(",")
-    project_list = project_config.get('projects', 'project_list').split(",")
     result = [['project', 'percent_coverage_s', 'statement_coverage', 'percent_coverage_c', 'checked_coverage']]
     correlation_csv = [['statement_correlation', 'checked_correlation']]
-
     bug_detecting_included_c = []
     bug_detecting_included_s = []
-
     percentage_c = []
     percentage_s = []
-
     scores_to_process_c = {}
     scores_to_process_s = {}
 
-    # for all_tests in data_dump[0]['tests']:
-    #     print(all_tests)
-
-    for all_tests in data_dump[0]['tests']:
-        for project_tests in all_tests['tests']:
-            for both_tests in project_tests['test_suites']:
+    for generated_test_suite in data_dump[0]['tests']:
+        for project_wise_tests in generated_test_suite['tests']:
+            for both_tests in project_wise_tests['test_suites']:
 
                 try:
                     s_is_bug_detecting_included = both_tests['statement_coverage']['is_bug_detecting_test_included']
+                    try:
+                        scores_to_process_s[project_wise_tests['percentage']].append(s_is_bug_detecting_included)
+                    except KeyError:
+                        scores_to_process_s[project_wise_tests['percentage']] = [s_is_bug_detecting_included]
+                except KeyError:
+                    pass
+
+                try:
                     c_is_bug_detecting_included = both_tests['checked_coverage']['is_bug_detecting_test_included']
-                    # print(project_tests['percentage'])
-                    # print(s_is_bug_detecting_included)
-                    # print(c_is_bug_detecting_included)
-
                     try:
-                        scores_to_process_c[project_tests['percentage']].append(c_is_bug_detecting_included)
+                        scores_to_process_c[project_wise_tests['percentage']].append(c_is_bug_detecting_included)
                     except KeyError:
-                        scores_to_process_c[project_tests['percentage']] = [c_is_bug_detecting_included]
-
-                    try:
-                        scores_to_process_s[project_tests['percentage']].append(s_is_bug_detecting_included)
-                    except KeyError:
-                        scores_to_process_s[project_tests['percentage']] = [s_is_bug_detecting_included]
-
+                        scores_to_process_c[project_wise_tests['percentage']] = [c_is_bug_detecting_included]
                 except KeyError:
                     pass
 
@@ -77,11 +67,13 @@ def compute(data_dump):
             percentage_c.append(key)
             bug_detecting_included_c.append(val)
 
-    # print(percentage_s)
-    # print(bug_detecting_included_s)
-    #
-    # print(percentage_c)
-    # print(bug_detecting_included_c)
+    print(percentage_s)
+    print(bug_detecting_included_s)
+    print(len(bug_detecting_included_s))
+
+    print(percentage_c)
+    print(bug_detecting_included_c)
+    print(len(bug_detecting_included_c))
     pbsr_statement = pointbiserialr(percentage_s, bug_detecting_included_s)
     pbsr_checked = pointbiserialr(percentage_c, bug_detecting_included_c)
 

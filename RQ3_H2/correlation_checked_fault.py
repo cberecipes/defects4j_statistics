@@ -6,11 +6,11 @@ from RQ3_H2 import point_biserial_correlation_v3
 from util import read_config
 from utils import utils
 
-
+results_folder_path = 'RQ3_H2/results/new_test'
 project_config = read_config(['project_details.properties'])
 random_number = "{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
-file_path = 'RQ3_H2/results/point_biserial_correlation__'
-static_correlation_path = 'RQ3_H2/results/correlation_final_lang.txt'
+file_path = results_folder_path + '/point_biserial_correlation__'
+static_correlation_path = results_folder_path + '/correlation_final_lang.txt'
 
 
 def compute():
@@ -36,16 +36,18 @@ def for_each_project(project_name):
             for percent in percentage_range:
                 test_suites = {}
                 test_suite_list = []
-                print("for project " + str(project_name) +
-                      " with id " + str(project_id) +
-                      " for percent " + str(percent))
+                print("for project {} with id {} for percent {}".format(project_name, project_id, percent))
+
                 for i in range(0, int(test_suite_size)):
-                    test_suite_list.append(create_test_suites(
-                        int(percent), project_id, current_project_path, list_of_bug_detecting_tests))
+                    created_test_suites = create_test_suites(
+                        int(percent), project_id, current_project_path, list_of_bug_detecting_tests)
+                    if len(created_test_suites) > 0:
+                        test_suite_list.append(created_test_suites)
+
                 test_suites['percentage'] = int(percent)
                 test_suites['test_suites'] = test_suite_list
-
                 test_suite_size_percent.append(test_suites)
+
             result['project_id'] = project_id
             result['tests'] = test_suite_size_percent
             result['list_of_bug_detecting_tests'] = list_of_bug_detecting_tests
@@ -90,9 +92,11 @@ def create_test_suites(percent, project_id, current_project_path, list_of_bug_de
         percent, list_of_test_methods, checked_coverage_coverable_lines, checked_coverage,
         list_of_bug_detecting_tests)
 
-    if not (len(tmp_checked_result.items()) <= 0 or len(tmp_statement_result.items()) <= 0):
-        result['statement_coverage'] = tmp_statement_result
+    if len(tmp_checked_result.items()) > 0:
         result['checked_coverage'] = tmp_checked_result
+
+    if len(tmp_statement_result.items()) > 0:
+        result['statement_coverage'] = tmp_statement_result
 
     return result
 
@@ -140,7 +144,7 @@ def add_new_test_into_list_return_score(list_of_test_methods, created_test_suite
     #     print(selected_key)
     #     print(bug_detecting_tests)
 
-    if not (new_score > score or selected_key in bug_detecting_tests):
+    if not new_score > score:
         created_test_suite_list.remove(selected_key)
 
     return new_score
