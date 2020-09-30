@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 
 from util import get_project_root, read_config
 
-results_folder = '/RQ3_H2/results'
+results_folder = '/RQ3_H2/results/new_test'
 project_config = read_config(['../project_details.properties'])
 
 
@@ -215,6 +215,7 @@ def visualize_as_box_plot():
             with open(path) as csv_file:
                 reader = csv.DictReader(csv_file, delimiter=',')
                 for row in reader:
+                    print(row)
                     if row['statement_coverage'] == "True":
                         statement_coverage_t.append(int(row['percent_coverage_s']))
                     if row['checked_coverage'] == "True":

@@ -7,6 +7,13 @@ from util import read_config, remove_exponent
 project_config = read_config(['project_details.properties'])
 
 
+def maximum(a, b):
+    if a >= b:
+        return a
+    else:
+        return b
+
+
 def resize_lists(list_to_trim):
     max_key_size = max(list_to_trim, key=int)
     max_resize_size = len(list_to_trim.__getitem__(max_key_size))
@@ -20,6 +27,13 @@ def shuffle_and_trim(list_to_shuffle, reduce_size):
     current_size = len(list_to_shuffle)
     to_size = current_size - reduce_size
     del list_to_shuffle[:to_size]
+
+
+def return_list_element_if_exist(the_list, i):
+    try:
+        return the_list[i]
+    except IndexError:
+        return None
 
 
 def compute(data_dump):
@@ -67,13 +81,6 @@ def compute(data_dump):
             percentage_c.append(key)
             bug_detecting_included_c.append(val)
 
-    print(percentage_s)
-    print(bug_detecting_included_s)
-    print(len(bug_detecting_included_s))
-
-    print(percentage_c)
-    print(bug_detecting_included_c)
-    print(len(bug_detecting_included_c))
     pbsr_statement = pointbiserialr(percentage_s, bug_detecting_included_s)
     pbsr_checked = pointbiserialr(percentage_c, bug_detecting_included_c)
 
@@ -83,14 +90,13 @@ def compute(data_dump):
     c_r = remove_exponent(getattr(pbsr_checked, 'correlation'))
     cp_value = remove_exponent(getattr(pbsr_checked, 'pvalue'))
 
-    print("statement correlation: {}, {}".format(str(s_r), str(sp_value)))
-    print("checked correlation: {}, {}".format(str(c_r), str(cp_value)))
-
     # create data for CSV
-
-    for idx, itm in enumerate(percentage_c):
-        tmp_result = ['project', percentage_s[idx], bug_detecting_included_s[idx], percentage_c[idx],
-                      bug_detecting_included_c[idx]]
+    for idx in range(maximum(len(percentage_c), len(percentage_s))):
+        tmp_result = ['project',
+                      return_list_element_if_exist(percentage_s, idx),
+                      return_list_element_if_exist(bug_detecting_included_s, idx),
+                      return_list_element_if_exist(percentage_c, idx),
+                      return_list_element_if_exist(bug_detecting_included_c, idx)]
         result.append(tmp_result)
 
     correlation_csv.append([s_r, sp_value, c_r, cp_value])
