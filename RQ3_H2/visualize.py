@@ -215,7 +215,6 @@ def visualize_as_box_plot():
             with open(path) as csv_file:
                 reader = csv.DictReader(csv_file, delimiter=',')
                 for row in reader:
-                    print(row)
                     if row['statement_coverage'] == "True":
                         statement_coverage_t.append(int(row['percent_coverage_s']))
                     if row['checked_coverage'] == "True":
@@ -270,9 +269,6 @@ def visualize_correlation_as_bar():
             statement_cor_score.append(float(row['statement']))
             names.append(row['name'])
 
-    print(names)
-    print(checked_cor_score)
-    print(statement_cor_score)
     df = pandas.DataFrame(dict(graph=names[::-1], n=checked_cor_score[::-1], m=statement_cor_score[::-1]))
 
     ind = np.arange(len(df))
@@ -288,7 +284,7 @@ def visualize_correlation_as_bar():
     fig.set_size_inches(7, 15, forward=True)
 
     plt.show()
-    file_name_to_save = "Lang"
+    file_name_to_save = "Cli"
     save_path = str(get_project_root()) + results_folder + '/' + str(file_name_to_save)
     fig.savefig(save_path, dpi=100)
 
