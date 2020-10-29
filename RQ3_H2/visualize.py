@@ -4,11 +4,12 @@ import glob
 import os
 import csv
 import pandas
-from pyaml import print
+# from pyaml import print
 
 from scipy.interpolate import interp1d
 
 from util import get_project_root, read_config
+from utils.utils import read_json_file
 
 results_folder = '/RQ3_H2/results/new_test'
 project_config = read_config(['../project_details.properties'])
@@ -190,7 +191,7 @@ def visualize_as_bar_plot():
 
 
 def visualize_as_box_plot():
-    font = {'size': 18}
+    font = {'size': 20}
 
     plt.rc('font', **font)
     project_list = project_config.get('projects', 'project_list').split(",")
@@ -289,4 +290,141 @@ def visualize_correlation_as_bar():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_box_plot()
+# visualize_as_box_plot()
+statement_0_10 = []
+statement_10_20 = []
+statement_20_30 = []
+statement_30_40 = []
+statement_40_50 = []
+statement_50_60 = []
+statement_60_70 = []
+statement_70_80 = []
+statement_80_90 = []
+statement_90_100 = []
+
+checked_0_10 = []
+checked_10_20 = []
+checked_20_30 = []
+checked_30_40 = []
+checked_40_50 = []
+checked_50_60 = []
+checked_60_70 = []
+checked_70_80 = []
+checked_80_90 = []
+checked_90_100 = []
+
+
+def visualize_statement_percent_wise():
+    path = str(get_project_root()) + results_folder
+    directory = os.path.join(path)
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                print(file)
+                contents = read_json_file(path + '/' + file)
+                for stmt_tests in contents[0]['tests']:
+                    for test_suites in stmt_tests['test_suites']:
+                        try:
+                            if 0 <= test_suites['statement_coverage']['score'] <= 10:
+                                statement_0_10.append(len(test_suites['statement_coverage']['tests']))
+                            if 11 <= test_suites['statement_coverage']['score'] <= 20:
+                                statement_10_20.append(len(test_suites['statement_coverage']['tests']))
+                            if 21 <= test_suites['statement_coverage']['score'] <= 30:
+                                statement_20_30.append(len(test_suites['statement_coverage']['tests']))
+
+                            if 31 <= test_suites['statement_coverage']['score'] <= 40:
+                                statement_30_40.append(len(test_suites['statement_coverage']['tests']))
+                            if 41 <= test_suites['statement_coverage']['score'] <= 50:
+                                statement_40_50.append(len(test_suites['statement_coverage']['tests']))
+                            if 51 <= test_suites['statement_coverage']['score'] <= 60:
+                                statement_50_60.append(len(test_suites['statement_coverage']['tests']))
+
+                            if 61 <= test_suites['statement_coverage']['score'] <= 70:
+                                statement_60_70.append(len(test_suites['statement_coverage']['tests']))
+                            if 71 <= test_suites['statement_coverage']['score'] <= 80:
+                                statement_70_80.append(len(test_suites['statement_coverage']['tests']))
+                            if 81 <= test_suites['statement_coverage']['score'] <= 90:
+                                statement_80_90.append(len(test_suites['statement_coverage']['tests']))
+                            if 91 <= test_suites['statement_coverage']['score'] <= 100:
+                                statement_90_100.append(len(test_suites['statement_coverage']['tests']))
+
+                            if 0 <= test_suites['checked_coverage']['score'] <= 10:
+                                checked_0_10.append(len(test_suites['checked_coverage']['tests']))
+                            if 11 <= test_suites['checked_coverage']['score'] <= 20:
+                                checked_10_20.append(len(test_suites['checked_coverage']['tests']))
+                            if 21 <= test_suites['checked_coverage']['score'] <= 30:
+                                checked_20_30.append(len(test_suites['checked_coverage']['tests']))
+
+                            if 31 <= test_suites['checked_coverage']['score'] <= 40:
+                                checked_30_40.append(len(test_suites['checked_coverage']['tests']))
+                            if 41 <= test_suites['checked_coverage']['score'] <= 50:
+                                checked_40_50.append(len(test_suites['checked_coverage']['tests']))
+                            if 51 <= test_suites['checked_coverage']['score'] <= 60:
+                                checked_50_60.append(len(test_suites['checked_coverage']['tests']))
+
+                            if 61 <= test_suites['checked_coverage']['score'] <= 70:
+                                checked_60_70.append(len(test_suites['checked_coverage']['tests']))
+                            if 71 <= test_suites['checked_coverage']['score'] <= 80:
+                                checked_70_80.append(len(test_suites['checked_coverage']['tests']))
+                            if 81 <= test_suites['checked_coverage']['score'] <= 90:
+                                checked_80_90.append(len(test_suites['checked_coverage']['tests']))
+                            if 91 <= test_suites['checked_coverage']['score'] <= 100:
+                                checked_90_100.append(len(test_suites['checked_coverage']['tests']))
+
+                        except KeyError:
+                            pass
+
+    data_to_plot = [statement_0_10, statement_10_20, statement_20_30, statement_30_40, statement_40_50,
+                    statement_50_60, statement_60_70, statement_70_80, statement_80_90, statement_90_100]
+    fig = plt.figure(1, figsize=(9, 6))
+    # Create an axes instance
+    ax = fig.add_subplot(111)
+
+    ax.set_ylabel('No. of tests with % coverage score')
+    ax.set_xlabel('Indicates whether or not, a bug detecting test is included in \n generated test suite')
+
+    # ax.set_xticks(ind + width / 2)
+    # ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
+
+    # Create the boxplot
+    bp = ax.boxplot(data_to_plot)
+    # bp['medians'][0].set(color='#3d85c6', linewidth=4)
+    # bp['medians'][1].set(color='#3d85c6', linewidth=4)
+    #
+    # bp['medians'][2].set(color='#e69138', linewidth=4)
+    # bp['medians'][3].set(color='#e69138', linewidth=4)
+
+    ax.legend().remove()
+
+    plt.show()
+    # save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
+    # fig.savefig(save_path, dpi=100)
+
+    data_to_plot = [checked_0_10, checked_10_20, checked_20_30, checked_30_40, checked_40_50, checked_50_60,
+                    checked_60_70, checked_70_80, checked_80_90, checked_90_100]
+    fig = plt.figure(1, figsize=(9, 6))
+    # Create an axes instance
+    ax = fig.add_subplot(111)
+
+    ax.set_ylabel('No. of tests with % coverage score')
+    ax.set_xlabel('Indicates whether or not, a bug detecting test is included in \n generated test suite')
+
+    # ax.set_xticks(ind + width / 2)
+    # ax.set_xticklabels(tuple(['False', 'True', 'False', 'True']))
+
+    # Create the boxplot
+    bp = ax.boxplot(data_to_plot)
+    # bp['medians'][0].set(color='#3d85c6', linewidth=4)
+    # bp['medians'][1].set(color='#3d85c6', linewidth=4)
+    #
+    # bp['medians'][2].set(color='#e69138', linewidth=4)
+    # bp['medians'][3].set(color='#e69138', linewidth=4)
+
+    ax.legend().remove()
+
+    plt.show()
+    # save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
+    # fig.savefig(save_path, dpi=100)
+
+
+visualize_statement_percent_wise()
