@@ -167,8 +167,8 @@ def visualize_whole_project():
 # visualize_by_project_id(0, 1)
 # visualize_whole_project()
 
-def visualize_as_box_plot():
-    font = {'size': 18}
+def visualize_as_violin_plot():
+    font = {'size': 20}
 
     plt.rc('font', **font)
     project_list = project_config.get('projects', 'project_list').split(",")
@@ -227,4 +227,54 @@ def visualize_as_box_plot():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_box_plot()
+def visualize_as_box_plot():
+    font = {'size': 20}
+
+    plt.rc('font', **font)
+    project_list = project_config.get('projects', 'project_list').split(",")
+
+    if len(project_list) > 1:
+        print("reduce number of projects to 1")
+        exit(0)
+    project_list = project_list[0]
+
+    statement_increase = []
+    checked_increase = []
+    mutation_increase = []
+
+    file_name = "/" + project_list + ".csv"
+    path = str(get_project_root()) + results_folder + file_name
+
+    with open(path) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in reader:
+            statement_increase.append(float(row['statement_coverage_increase']))
+            checked_increase.append(float(row['checked_coverage_increase'])
+                                    if float(row['checked_coverage_increase']) > 0 else 0)
+            mutation_increase.append(float(row['mutation_coverage_increase'])
+                                     if float(row['mutation_coverage_increase']) > 0 else 0)
+
+    data_to_plot = [statement_increase, checked_increase, mutation_increase]
+    fig = plt.figure(1, figsize=(9, 6))
+
+    ax = fig.add_subplot(111)
+
+    ax.set_ylabel('% coverage score increase')
+    # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    ax.set_title(project_list)
+    # ax.set_xticks(ind + width / 2)
+    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage', 'Mutation score']))
+
+    bp = ax.boxplot(data_to_plot)
+    bp['medians'][0].set(color='#3d85c6', linewidth=2)
+    bp['medians'][1].set(color='#e69138', linewidth=2)
+    bp['medians'][2].set(color='#6aa84f', linewidth=2)
+
+    ax.legend().remove()
+    plt.show()
+    save_path = str(get_project_root()) + results_folder + '/' + str(project_list) + '_box-plot'
+    # fig.savefig(save_path, dpi=100)
+
+
+visualize_as_violin_plot()

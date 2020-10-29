@@ -197,8 +197,8 @@ def visualize_by_project_id(start, end):
 # visualize_whole_project()
 
 
-def visualize_as_box_plot():
-    font = {'size': 18}
+def visualize_as_violin_plot():
+    font = {'size': 20}
 
     plt.rc('font', **font)
     project_list = project_config.get('projects', 'project_list').split(",")
@@ -254,4 +254,4 @@ def visualize_as_box_plot():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_box_plot()
+visualize_as_violin_plot()
