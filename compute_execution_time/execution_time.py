@@ -2,6 +2,7 @@ import time
 from os import walk, stat, path
 
 from util import read_config
+from utils import utils
 
 results_folder_path = 'compute_execution_time/results'
 project_config = read_config(['project_details.properties'])
@@ -10,10 +11,13 @@ project_config = read_config(['project_details.properties'])
 def compute():
     project_list = project_config.get('projects', 'project_list').split(",")
     for project in project_list:
-        for_each_project(project)
+        file_path = 'compute_execution_time/results/execution_time_for__' + project
+        result = for_each_project(project)
+        utils.write_list_as_csv(result, file_path + '.csv')
 
 
 def for_each_project(project_name):
+    result = []
     project_range = project_config.get('projects', project_name).split(",")
     extracted_results_path = project_config.get('paths', 'extracted_results_path') + '/' + project_name
 
@@ -23,13 +27,15 @@ def for_each_project(project_name):
             for file in files:
 
                 if is_valid_file(str(file)):
-                    print("{}, {}, {}, {}, {}".format(project_name, project_id,
-                                                      str(file).split(".")[0],
-                                                      time.
-                                                      strftime('%d.%m.%Y %H:%M:%S',
-                                                               time.
-                                                               localtime(stat(path.join(root, file)).st_mtime)),
-                                                      stat(path.join(root, file)).st_mtime))
+                    tmp_result = [project_name, project_id,
+                                  str(file).split(".")[0],
+                                  time.strftime('%d.%m.%Y %H:%M:%S',
+                                                time.localtime(stat(path.join(root, file)).st_mtime)),
+                                  int(stat(path.join(root, file)).st_mtime)]
+
+                    print(tmp_result)
+                    result.append(tmp_result)
+    return result
 
 
 def is_valid_file(file_name):
