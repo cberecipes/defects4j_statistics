@@ -235,7 +235,7 @@ def visualize_as_box_plot():
     # Create an axes instance
     ax = fig.add_subplot(111)
 
-    ax.set_ylabel('No. of tests with % coverage score')
+    ax.set_ylabel('No. of tests suites with % cov. score')
     ax.set_xlabel('Indicates whether or not, a bug detecting test is included in \n generated test suite')
     ax.set_title(project_list)
     # ax.set_xticks(ind + width / 2)
@@ -257,7 +257,8 @@ def visualize_as_box_plot():
     fig.savefig(save_path, dpi=100)
 
 
-# visualize_as_box_plot()
+visualize_as_box_plot()
+
 
 def visualize_correlation_as_bar():
     names = []
@@ -427,4 +428,4 @@ def visualize_statement_percent_wise():
     # fig.savefig(save_path, dpi=100)
 
 
-visualize_statement_percent_wise()
+# visualize_statement_percent_wise()
