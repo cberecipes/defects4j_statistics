@@ -1,6 +1,7 @@
 from os import path
 import json
 import csv
+from collections import defaultdict
 
 
 def get_statement_coverage(project_id, current_project_path, modified_classes):
@@ -96,6 +97,46 @@ def get_coverable_lines(project_id, current_project_path, modified_classes):
     return required_coverage
 
 
+def get_class_name(contains_class_name):
+    for each_element in contains_class_name:
+        if each_element.__contains__(".java"):
+            return each_element.split("/java/")[1].replace("/", ".").replace(".java", "")
+
+
+def get_modified_lines(patch_path):
+    counts = {}
+    class_name = None
+    for line in read_file(patch_path):
+        if line.startswith("diff --git "):
+            class_name = get_class_name(line.split(" "))
+            # Some times modified files are not java files, eg .txt etc...
+            # class_name will be None if they are not .java file
+            if class_name is None:
+                break
+        if line.startswith("@@ "):
+            comma_separated_line = line.split("@@")[1].split("+")[1].split(",")
+            try:
+                counts[class_name] = counts[class_name] + [*range(int(comma_separated_line[0]),
+                                                                  int(comma_separated_line[0])
+                                                                  + int(comma_separated_line[1]))]
+            except KeyError:
+                counts[class_name] = [*range(int(comma_separated_line[0]), int(comma_separated_line[0])
+                                             + int(comma_separated_line[1]))]
+    return counts
+
+
+def get_modified_coverable_lines(patch_path, coverable_lines):
+    coverable_modified_lines = defaultdict(dict)
+    all_modified_lines = get_modified_lines(patch_path)
+    for key, value in all_modified_lines.items():
+        coverable_modified_lines[key]['statement_coverable_lines'] = \
+            intersection(coverable_lines[key]['statement_coverable_lines'], all_modified_lines[key])
+        coverable_modified_lines[key]['checked_coverable_lines'] = \
+            intersection(coverable_lines[key]['checked_coverable_lines'], all_modified_lines[key])
+
+    return coverable_modified_lines
+
+
 def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
     score = {}
     for key, value in coverage.items():
@@ -149,4 +190,5 @@ def write_list_as_csv(list_as_csv, file_path_to_save):
         wr = csv.writer(result_file, dialect='excel')
         wr.writerows(list_as_csv)
     result_file.close()
+
 
