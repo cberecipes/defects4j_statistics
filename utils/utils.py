@@ -192,3 +192,9 @@ def write_list_as_csv(list_as_csv, file_path_to_save):
     result_file.close()
 
 
+def write_dict_as_csv(dict_values, file_path_to_save):
+    with open(file_path_to_save, 'a') as f:
+        for key in dict_values.keys():
+            f.write("%s,%s\n" % (key, dict_values[key]))
+
+
