@@ -66,5 +66,55 @@ def visualize_as_box_plot():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_box_plot()
+def visualize_as_violin_plot():
+    font = {'size': 20}
+    plt.rc('font', **font)
 
+    statement_increase = []
+    checked_increase = []
+    mutation_increase = []
+
+    file_name = "/max_pc" + ".csv"
+    path = str(get_project_root()) + results_folder + file_name
+
+    with open(path) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in reader:
+            statement_increase.append(float(row['statement_pc']))
+            checked_increase.append(float(row['checked_pc']))
+            # mutation_increase.append(float(row['mutation_coverage_increase'])
+            #                          if float(row['mutation_coverage_increase']) > 0 else 0)
+
+    data_to_plot = [statement_increase, checked_increase]
+    fig = plt.figure(1, figsize=(9, 6))
+
+    ax = fig.add_subplot()
+
+    ax.set_ylabel('% coverage score increase')
+    # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    ax.set_title("Probabilistic Coupling")
+    ax.set_xticks([1,2,3])
+    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
+
+    bp = ax.violinplot(data_to_plot, showmeans=True, showmedians=True)
+
+    # loop over the paths of the mean lines
+    xy = [[l.vertices[:, 0].mean(), l.vertices[0, 1]] for l in bp['cmeans'].get_paths()]
+    xy = np.array(xy)
+
+    ax.scatter(xy[:, 0], xy[:, 1], s=121, c="crimson", marker="x", zorder=3)
+
+    # make lines invisible
+    bp['cmeans'].set_visible(False)
+
+    bp['bodies'][0].set(color='#e69138', linewidth=2)
+    bp['bodies'][1].set(color='#3d85c6', linewidth=2)
+
+    ax.legend().remove()
+    plt.show()
+    save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
+    fig.savefig(save_path, dpi=100)
+
+
+visualize_as_violin_plot()
