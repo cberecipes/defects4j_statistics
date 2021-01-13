@@ -1,7 +1,11 @@
+import statistics
+
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
-from pyaml import print
+import seaborn as sns
+from matplotlib.collections import PathCollection
+from numpy import mean
 
 from util import get_project_root, read_config
 
@@ -81,28 +85,29 @@ def visualize_as_violin_plot():
         reader = csv.DictReader(csv_file, delimiter=',')
 
         for row in reader:
-            statement_increase.append(float(row['statement_pc']))
-            checked_increase.append(float(row['checked_pc']))
+            statement_increase.append(float(row['statement_pc_max']))
+            checked_increase.append(float(row['checked_pc_max']))
             # mutation_increase.append(float(row['mutation_coverage_increase'])
             #                          if float(row['mutation_coverage_increase']) > 0 else 0)
-
+    # statement_increase = list(filter(lambda num: num != 0, statement_increase))
+    # checked_increase = list(filter(lambda num: num != 0, checked_increase))
     data_to_plot = [statement_increase, checked_increase]
     fig = plt.figure(1, figsize=(9, 6))
 
     ax = fig.add_subplot()
 
-    ax.set_ylabel('% coverage score increase')
+    ax.set_ylabel('Max PC')
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title("Probabilistic Coupling")
-    ax.set_xticks([1,2,3])
+    ax.set_xticks([1, 2, 3])
     ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
 
     bp = ax.violinplot(data_to_plot, showmeans=True, showmedians=True)
 
     # loop over the paths of the mean lines
     xy = [[l.vertices[:, 0].mean(), l.vertices[0, 1]] for l in bp['cmeans'].get_paths()]
-    xy = np.array(xy)
 
+    xy = np.array(xy)
     ax.scatter(xy[:, 0], xy[:, 1], s=121, c="crimson", marker="x", zorder=3)
 
     # make lines invisible
@@ -117,4 +122,60 @@ def visualize_as_violin_plot():
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_violin_plot()
+# visualize_as_violin_plot()
+
+
+def visualize_as_violin_plot_jitter():
+    font = {'size': 20}
+    plt.rc('font', **font)
+
+    statement_increase = []
+    checked_increase = []
+    mutation_increase = []
+    means = []
+    modes = []
+
+    file_name = "/max_pc" + ".csv"
+    path = str(get_project_root()) + results_folder + file_name
+
+    with open(path) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in reader:
+            statement_increase.append(float(row['statement_pc_max']))
+            checked_increase.append(float(row['checked_pc_max']))
+            # mutation_increase.append(float(row['mutation_coverage_increase'])
+            #                          if float(row['mutation_coverage_increase']) > 0 else 0)
+
+    means.append(statistics.mean(statement_increase))
+    means.append(statistics.mean(checked_increase))
+
+    modes.append(statistics.median(statement_increase))
+    modes.append(statistics.median(checked_increase))
+
+    data_to_plot = [statement_increase, checked_increase]
+    fig = plt.figure(1, figsize=(9, 6))
+    ax = sns.violinplot(data=data_to_plot, color=".8")
+    sns.stripplot(data=data_to_plot, jitter=True, ax=ax)
+    plt.setp(ax.collections, alpha=.3)
+    scatter1 = ax.scatter(x=range(len(means)), y=means, s=121, c="crimson", marker="x", zorder=3)
+    scatter2 = ax.scatter(x=range(len(modes)), y=modes,  s=121, c="crimson", zorder=3, marker=">")
+
+    plt.legend((scatter1, scatter2),
+               ('Mean', 'Median'),
+               scatterpoints=1,
+               loc='lower right',
+               ncol=3,
+               fontsize=15)
+    ax.set_ylabel('Max PC')
+    ax.set_title("Probabilistic Coupling")
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
+
+    # ax.legend()
+    plt.show()
+    save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
+    fig.savefig(save_path, dpi=100)
+
+
+visualize_as_violin_plot_jitter()

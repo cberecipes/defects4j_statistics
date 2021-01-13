@@ -198,3 +198,7 @@ def write_dict_as_csv(dict_values, file_path_to_save):
             f.write("%s,%s\n" % (key, dict_values[key]))
 
 
+def write_string_to_file(contents, file_path_to_save):
+    with open(file_path_to_save, 'a') as result_file:
+        result_file.write(contents)
+    result_file.close()

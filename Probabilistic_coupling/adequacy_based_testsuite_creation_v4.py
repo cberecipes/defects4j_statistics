@@ -87,26 +87,32 @@ def for_each_project(project_name):
 
             # print(dict_of_modified_coverable_lines)
             result_checked = {}
-            result_statement = {}
+            # result_statement = {}
 
-            for statements in statement_as_rows:
-                if statements in stmt_modified_coverable_lines:
-                    result_statement[statements] = divide(len(list_of_bug_detecting_tests),
-                                                          len(statement_as_rows[statements])) + ", " + \
-                                                   str(len(list_of_bug_detecting_tests)) + "/" + \
-                                                   str(len(statement_as_rows[statements]))
+            # for statements in statement_as_rows:
+            #     if statements in stmt_modified_coverable_lines:
+            #         result_statement[statements] = divide(len(list_of_bug_detecting_tests),
+            #                                               len(statement_as_rows[statements])) + ", " + \
+            #                                        str(len(list_of_bug_detecting_tests)) + "/" + \
+            #                                        str(len(statement_as_rows[statements]))
 
             for statements in checked_stmt_as_rows:
-                if statements in checked_modified_coverable_lines:
+                if float(divide(len(a_intersection_b(list_of_bug_detecting_tests, checked_stmt_as_rows[statements])), len(checked_stmt_as_rows[statements]))) > 0 and float(divide(len(a_intersection_b(list_of_bug_detecting_tests, statement_as_rows[statements])), len(statement_as_rows[statements]))) > 0:
                     result_checked[statements] = "{}-{}".format(project_name, project_id) + ", " + \
-                                                 divide(len(list_of_bug_detecting_tests),
+                                                 divide(len(a_intersection_b(list_of_bug_detecting_tests,
+                                                                             checked_stmt_as_rows[statements])),
                                                         len(checked_stmt_as_rows[statements])) + ", " + \
-                                                 divide(len(list_of_bug_detecting_tests),
+                                                 divide(len(a_intersection_b(list_of_bug_detecting_tests,
+                                                                             statement_as_rows[statements])),
                                                         len(statement_as_rows[statements])) + ", " + \
-                                                 str(len(list_of_bug_detecting_tests)) + "/" + \
+                                                 str(len(a_intersection_b(list_of_bug_detecting_tests,
+                                                                          checked_stmt_as_rows[statements]))) + "/" + \
                                                  str(len(checked_stmt_as_rows[statements])) + ", " + \
-                                                 str(len(list_of_bug_detecting_tests)) + "/" + \
+                                                 str(len(a_intersection_b(list_of_bug_detecting_tests,
+                                                                          statement_as_rows[statements]))) + "/" + \
                                                  str(len(statement_as_rows[statements]))
+                    if statements in checked_modified_coverable_lines:
+                        pass
 
             # utils.write_list_as_csv([["target", "statement coverage probabilistic coupling",
             #                           "len(bug detecting tests)/len(covering tests)",
@@ -117,17 +123,18 @@ def for_each_project(project_name):
             # utils.write_dict_as_csv(result_statement, "{}/prob_coupling_{}_{}_{}.csv"
             #                         .format(results_folder_path, "statement", project_name, project_id))
 
-            utils.write_list_as_csv([["target",
-                                      "Proj-id",
-                                      "checked_pc",
-                                      "statement_pc",
-                                      "len(bug_detecting_tests)/len(covering_tests)",
-                                      "len(bug_detecting_tests)/len(covering_tests)"]],
-                                    "{}/prob_coupling_{}_{}.csv"
-                                    .format(results_folder_path, project_name, project_id))
+            if len(result_checked) > 0:
+                utils.write_list_as_csv([["target",
+                                          "Proj-id",
+                                          "checked_pc",
+                                          "statement_pc",
+                                          "len(bug_detecting_tests)/len(covering_tests)",
+                                          "len(bug_detecting_tests)/len(covering_tests)"]],
+                                        "{}/prob_coupling_{}_{}.csv"
+                                        .format(results_folder_path, project_name, project_id))
 
-            utils.write_dict_as_csv(result_checked, "{}/prob_coupling_{}_{}.csv"
-                                    .format(results_folder_path, project_name, project_id))
+                utils.write_dict_as_csv(result_checked, "{}/prob_coupling_{}_{}.csv"
+                                        .format(results_folder_path, project_name, project_id))
 
 
 def avg(lst):
@@ -194,8 +201,8 @@ def contained_in(lst, sub):
 
 
 def a_intersection_b(a, b):
-    return a.__len__()
-    # return [value for value in a if value in b].__len__()
+    # return a.__len__()
+    return [value for value in a if value in b]
 
 
 def create_test_suites(percent, project_id, current_project_path, list_of_bug_detecting_tests):
@@ -309,6 +316,7 @@ def list_a_contains_b(a, b):
 
 def divide(a, b):
     try:
-        return str(1) if a/b > 1 else str(a/b)
+        # return str(a / b)
+        return str(1) if a / b > 1 else str(a / b)
     except ZeroDivisionError:
         return str(0)
