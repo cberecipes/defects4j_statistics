@@ -10,6 +10,7 @@ from numpy import mean
 from util import get_project_root, read_config
 
 results_folder = '/Probabilistic_coupling/results'
+results_folder_max_pc_per_proj = '/Probabilistic_coupling/results/max_pc_per_proj'
 project_config = read_config(['../project_details.properties'])
 
 
@@ -125,27 +126,12 @@ def visualize_as_violin_plot():
 # visualize_as_violin_plot()
 
 
-def visualize_as_violin_plot_jitter():
+def visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_increase, save_path, title):
     font = {'size': 20}
     plt.rc('font', **font)
 
-    statement_increase = []
-    checked_increase = []
-    mutation_increase = []
     means = []
     modes = []
-
-    file_name = "/max_pc" + ".csv"
-    path = str(get_project_root()) + results_folder + file_name
-
-    with open(path) as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=',')
-
-        for row in reader:
-            statement_increase.append(float(row['statement_pc_max']))
-            checked_increase.append(float(row['checked_pc_max']))
-            # mutation_increase.append(float(row['mutation_coverage_increase'])
-            #                          if float(row['mutation_coverage_increase']) > 0 else 0)
 
     means.append(statistics.mean(statement_increase))
     means.append(statistics.mean(checked_increase))
@@ -168,14 +154,68 @@ def visualize_as_violin_plot_jitter():
                ncol=3,
                fontsize=15)
     ax.set_ylabel('Max PC')
-    ax.set_title("Probabilistic Coupling")
+    ax.set_title(title)
     ax.set_xticks([0, 1])
     ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
 
     # ax.legend()
     plt.show()
-    save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
     fig.savefig(save_path, dpi=100)
 
 
-visualize_as_violin_plot_jitter()
+def read_big_file_and_visualise():
+    file_name = "/max_pc" + ".csv"
+    path = str(get_project_root()) + results_folder + file_name
+    statement_increase = []
+    checked_increase = []
+    mutation_coverage = []
+
+    with open(path) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+
+        for row in reader:
+            statement_increase.append(float(row['statement_pc_max']))
+            checked_increase.append(float(row['checked_pc_max']))
+
+            # mutation_increase.append(float(row['mutation_coverage_increase'])
+            #                          if float(row['mutation_coverage_increase']) > 0 else 0)
+
+    save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
+    visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
+                                    "Probabilistic Coupling")
+
+
+read_big_file_and_visualise()
+
+
+def read_file_and_visualise():
+    project_list = project_config.get('projects', 'project_list').split(",")
+    results_folder = str(get_project_root()) + results_folder_max_pc_per_proj
+    for project in project_list:
+        file_name = "/" + project + ".csv"
+        path = results_folder + file_name
+
+        print(
+            path
+        )
+
+        statement_increase = []
+        checked_increase = []
+        mutation_coverage = []
+
+        with open(path) as csv_file:
+            reader = csv.DictReader(csv_file, delimiter=',')
+
+            for row in reader:
+                statement_increase.append(float(row['statement_pc_max']))
+                checked_increase.append(float(row['checked_pc_max']))
+
+                # mutation_increase.append(float(row['mutation_coverage_increase'])
+                #                          if float(row['mutation_coverage_increase']) > 0 else 0)
+
+        save_path = results_folder + '/' + project
+        visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
+                                        "Probabilistic Coupling: " + project)
+
+
+# read_file_and_visualise()
