@@ -98,7 +98,8 @@ def for_each_project(project_name):
 
             for statements in checked_stmt_as_rows:
                 if float(divide(len(a_intersection_b(list_of_bug_detecting_tests, checked_stmt_as_rows[statements])), len(checked_stmt_as_rows[statements]))) > 0 and float(divide(len(a_intersection_b(list_of_bug_detecting_tests, statement_as_rows[statements])), len(statement_as_rows[statements]))) > 0:
-                    result_checked[statements] = "{}-{}".format(project_name, project_id) + ", " + \
+                    result_checked[statements] = ".".join(statements.split(".")[:-1]) + \
+                                                 ", {}-{}".format(project_name, project_id) + ", " + \
                                                  divide(len(a_intersection_b(list_of_bug_detecting_tests,
                                                                              checked_stmt_as_rows[statements])),
                                                         len(checked_stmt_as_rows[statements])) + ", " + \
@@ -125,6 +126,7 @@ def for_each_project(project_name):
 
             if len(result_checked) > 0:
                 utils.write_list_as_csv([["target",
+                                          "class_name",
                                           "Proj-id",
                                           "checked_pc",
                                           "statement_pc",

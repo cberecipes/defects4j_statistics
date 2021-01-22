@@ -15,7 +15,7 @@ from utils.utils import read_file
 
 results_folder_path = 'Probabilistic_coupling/results/'
 project_config = read_config(['project_details.properties'])
-aggregated_csv = [['project_id', 'adequacy_based_tests_statement', 'adequacy_based_tests_checked']]
+aggregated_csv = [['project_id', 'class_name', 'adequacy_based_tests_statement', 'adequacy_based_tests_checked']]
 max_pc = results_folder_path + "max_pc.csv"
 max_pc_per_project = results_folder_path + "max_pc_per_proj/"
 max_pc_per_project_file = ""
@@ -32,10 +32,10 @@ def compute():
     #                           "len(bug_detecting_tests)/len(covering_tests)"]],
     #                         max_pc)
 
-    utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "project-id"]], max_pc)
+    utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "class_name", "project-id"]], max_pc)
     for project in project_list:
         max_pc_per_project_file = max_pc_per_project + project + ".csv"
-        utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "project-id"]],
+        utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "class_name", "project-id"]],
                                 max_pc_per_project_file)
         for_each_project(project)
 
@@ -56,14 +56,17 @@ def for_each_project(project_name):
 
         try:
             df = pd.read_csv(result_file_path)
-            if df['checked_pc'].max() != 0 and df['statement_pc'].max() != 0:
-                utils.write_string_to_file(str(df['checked_pc'].max()) + ', ' +
-                                           str(df['statement_pc'].max()) + ", {}-{} \n".
-                                           format(project_name, project_id), max_pc)
+            for class_name in df.class_name.unique():
+               # if df['checked_pc'].max() != 0 and df['statement_pc'].max() != 0:
+                utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
+                                           str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
+                                           class_name +
+                                           ", {}-{} \n".format(project_name, project_id), max_pc)
 
-                utils.write_string_to_file(str(df['checked_pc'].max()) + ', ' +
-                                           str(df['statement_pc'].max()) + ", {}-{} \n".
-                                           format(project_name, project_id), max_pc_per_project_file)
+                utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
+                                           str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
+                                           class_name +
+                                           ", {}-{} \n".format(project_name, project_id), max_pc_per_project_file)
 
         except FileNotFoundError:
             pass
