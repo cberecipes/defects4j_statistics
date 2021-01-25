@@ -17,8 +17,6 @@ random_number = "{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
 file_path = results_folder_path + '/point_biserial_correlation__'
 static_correlation_path = results_folder_path + '/correlation_final_lang.txt'
 aggregated_csv = [['project_id', 'adequacy_based_tests_statement', 'adequacy_based_tests_checked']]
-statement_as_rows = dict()
-checked_stmt_as_rows = dict()
 
 
 def compute():
@@ -35,6 +33,9 @@ def for_each_project(project_name):
         print("running for {}, with bug-id {}".format(project_name, project_id))
         is_project_path_exist = defects4j_project_path + "/" + project_name + "/trace_files/" + str(project_id) + "f"
         if path.isdir(is_project_path_exist):
+            statement_as_rows = dict()
+            checked_stmt_as_rows = dict()
+            low_checked_coverage = 0
             # for i in range(0, int(test_suite_size)):
             current_project_path = defects4j_project_path + "/" + project_name
             modified_classes = utils.get_modified_classes(project_id, current_project_path)
@@ -49,7 +50,7 @@ def for_each_project(project_name):
                                                                        , modified_classes)
             projects_checked_coverage = utils.get_checked_coverage(project_id, current_project_path,
                                                                    modified_classes)
-            print("list_of_bug_detecting_tests: " + ",".join(list_of_bug_detecting_tests))
+            # print("list_of_bug_detecting_tests: " + ",".join(list_of_bug_detecting_tests))
 
             # take coverable lines
             for stmt in coverable_lines:
@@ -97,7 +98,10 @@ def for_each_project(project_name):
             #                                        str(len(statement_as_rows[statements]))
 
             for statements in checked_stmt_as_rows:
-                if float(divide(len(a_intersection_b(list_of_bug_detecting_tests, checked_stmt_as_rows[statements])), len(checked_stmt_as_rows[statements]))) > 0 and float(divide(len(a_intersection_b(list_of_bug_detecting_tests, statement_as_rows[statements])), len(statement_as_rows[statements]))) > 0:
+                if float(divide(len(a_intersection_b(list_of_bug_detecting_tests, checked_stmt_as_rows[statements])),
+                                len(checked_stmt_as_rows[statements]))) > 0 and \
+                        float(divide(len(a_intersection_b(list_of_bug_detecting_tests, statement_as_rows[statements])),
+                                     len(statement_as_rows[statements]))) > 0:
                     result_checked[statements] = ".".join(statements.split(".")[:-1]) + \
                                                  ", {}-{}".format(project_name, project_id) + ", " + \
                                                  divide(len(a_intersection_b(list_of_bug_detecting_tests,
@@ -114,6 +118,8 @@ def for_each_project(project_name):
                                                  str(len(statement_as_rows[statements]))
                     if statements in checked_modified_coverable_lines:
                         pass
+                else:
+                    low_checked_coverage = low_checked_coverage + 1
 
             # utils.write_list_as_csv([["target", "statement coverage probabilistic coupling",
             #                           "len(bug detecting tests)/len(covering tests)",
@@ -123,7 +129,7 @@ def for_each_project(project_name):
             #                         .format(results_folder_path, "statement", project_name, project_id))
             # utils.write_dict_as_csv(result_statement, "{}/prob_coupling_{}_{}_{}.csv"
             #                         .format(results_folder_path, "statement", project_name, project_id))
-
+            print("low_checked_coverage: " + str(low_checked_coverage))
             if len(result_checked) > 0:
                 utils.write_list_as_csv([["target",
                                           "class_name",
