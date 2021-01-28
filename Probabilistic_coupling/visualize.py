@@ -181,7 +181,7 @@ def visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutat
 
     ax = fig.add_subplot(111)
 
-    ax.set_ylabel('% coverage score increase')
+    ax.set_ylabel('Max PC')
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title(title)
     # ax.set_xticks(ind + width / 2)
@@ -216,10 +216,10 @@ def read_big_file_and_visualise():
 
     save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
     visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
-                                    "Probabilistic Coupling")
+                                    "Probabilistic Coupling: All Projects")
 
 
-# read_big_file_and_visualise()
+read_big_file_and_visualise()
 
 
 def read_file_and_visualise():
@@ -247,4 +247,4 @@ def read_file_and_visualise():
                                         "Probabilistic Coupling: " + project)
 
 
-read_file_and_visualise()
+# read_file_and_visualise()

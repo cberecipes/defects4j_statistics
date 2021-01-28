@@ -1,11 +1,11 @@
 import json
 
-from RQ3_H1.checked_coverage_better_indicator import get_covering_tests, get_modified_coverable_lines
+from RQ3_H1.checked_coverage_better_indicator import get_covering_tests
 from util import read_config
 from os import path
 
 from utils import utils
-from utils.utils import get_bug_detecting_tests
+from utils.utils import get_bug_detecting_tests, get_modified_coverable_lines
 
 project_config = read_config(['../project_details.properties'])
 

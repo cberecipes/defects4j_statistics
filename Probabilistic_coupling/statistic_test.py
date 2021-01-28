@@ -22,7 +22,7 @@ project_config = read_config(['../project_details.properties'])
 def correlation(d1, d2):
     corr, _ = pearsonr(d1, d2)
     # print('Pearsons correlation: %.3f' % corr, _)
-    print("Pearsons correlation: {:.3f}, p-val: {:.5f}". format(corr, _))
+    print("correlation:\t{:.3f} \np-val: \t\t{:.5f}". format(corr, _))
     return corr
 
 
@@ -76,7 +76,7 @@ def VD_A(treatment, control):
     magnitude = magnitude[bisect_left(levels, abs(scaled_A))]
     estimate = A
 
-    return estimate, magnitude
+    return "A12: \t\t" + str(estimate) + " \nmagnitude:\t" + magnitude
 
 
 def VD_A_DF(data, val_col: str = None, group_col: str = None, sort=True):
@@ -146,7 +146,7 @@ def read_big_file_and_compute_stats():
     # print(VD_A_DF(df))
 
 
-# read_big_file_and_compute_stats()
+read_big_file_and_compute_stats()
 
 
 def read_file_and_visualise():
@@ -173,9 +173,9 @@ def read_file_and_visualise():
             continue
         print(project + ":")
         correlation(checked_increase, statement_increase)
-        print("cohend's d: {}".format(cohend(checked_increase, statement_increase)))
+        print("cohend's d:\t{}".format(cohend(checked_increase, statement_increase)))
         print(VD_A(checked_increase, statement_increase))
         print("-"*80)
 
 
-read_file_and_visualise()
+# read_file_and_visualise()
