@@ -163,6 +163,40 @@ def visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutati
     fig.savefig(save_path, dpi=100)
 
 
+def visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutation_increase, save_path, title):
+    font = {'size': 20}
+    plt.rc('font', **font)
+
+    means = []
+    modes = []
+
+    means.append(statistics.mean(statement_increase))
+    means.append(statistics.mean(checked_increase))
+
+    modes.append(statistics.median(statement_increase))
+    modes.append(statistics.median(checked_increase))
+
+    data_to_plot = [statement_increase, checked_increase]
+    fig = plt.figure(1, figsize=(9, 6))
+
+    ax = fig.add_subplot(111)
+
+    ax.set_ylabel('% coverage score increase')
+    # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
+    ax.set_title(title)
+    # ax.set_xticks(ind + width / 2)
+    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage', 'Mutation score']))
+
+    bp = ax.boxplot(data_to_plot)
+    bp['medians'][0].set(color='#3d85c6', linewidth=2)
+    bp['medians'][1].set(color='#e69138', linewidth=2)
+#     bp['medians'][2].set(color='#6aa84f', linewidth=2)
+
+    ax.legend().remove()
+    plt.show()
+    fig.savefig(save_path+"-boxplot", dpi=100)
+
+
 def read_big_file_and_visualise():
     file_name = "/max_pc" + ".csv"
     path = str(get_project_root()) + results_folder + file_name
@@ -181,11 +215,11 @@ def read_big_file_and_visualise():
             #                          if float(row['mutation_coverage_increase']) > 0 else 0)
 
     save_path = str(get_project_root()) + results_folder + '/max_pc_violin-plot'
-    visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
+    visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
                                     "Probabilistic Coupling")
 
 
-read_big_file_and_visualise()
+# read_big_file_and_visualise()
 
 
 def read_file_and_visualise():
@@ -194,11 +228,6 @@ def read_file_and_visualise():
     for project in project_list:
         file_name = "/" + project + ".csv"
         path = results_folder + file_name
-
-        print(
-            path
-        )
-
         statement_increase = []
         checked_increase = []
         mutation_coverage = []
@@ -214,8 +243,8 @@ def read_file_and_visualise():
                 #                          if float(row['mutation_coverage_increase']) > 0 else 0)
 
         save_path = results_folder + '/' + project
-        visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
+        visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
                                         "Probabilistic Coupling: " + project)
 
 
-# read_file_and_visualise()
+read_file_and_visualise()
