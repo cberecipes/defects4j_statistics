@@ -32,10 +32,11 @@ def compute():
     #                           "len(bug_detecting_tests)/len(covering_tests)"]],
     #                         max_pc)
 
-    utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "class_name", "project-id"]], max_pc)
+    utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "mutation_pc_max", "class_name", "project-id"]],
+                            max_pc)
     for project in project_list:
         max_pc_per_project_file = max_pc_per_project + project + ".csv"
-        utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "class_name", "project-id"]],
+        utils.write_list_as_csv([["checked_pc_max", "statement_pc_max", "mutation_pc_max", "class_name", "project-id"]],
                                 max_pc_per_project_file)
         for_each_project(project)
 
@@ -53,20 +54,29 @@ def for_each_project(project_name):
 
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
         result_file_path = "{}prob_coupling_{}_{}.csv".format(results_folder_path, project_name, project_id)
+        mutation_result_file_path = "{}mutant_pc_{}_{}.csv".format(results_folder_path, project_name, project_id)
 
         try:
             df = pd.read_csv(result_file_path)
+            mutation_max_pc_score = get_mutation_pc_max(mutation_result_file_path)
             for class_name in df.class_name.unique():
-               # if df['checked_pc'].max() != 0 and df['statement_pc'].max() != 0:
-                utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
-                                           str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
-                                           class_name +
-                                           ", {}-{} \n".format(project_name, project_id), max_pc)
+                if df['checked_pc'].max() != 0 and df['statement_pc'].max() != 0 and mutation_max_pc_score != 0:
+                    utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
+                                               str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
+                                               mutation_max_pc_score + ', ' +
+                                               class_name +
+                                               ", {}-{} \n".format(project_name, project_id), max_pc)
 
-                utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
-                                           str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
-                                           class_name +
-                                           ", {}-{} \n".format(project_name, project_id), max_pc_per_project_file)
+                    utils.write_string_to_file(str(df[df['class_name'] == class_name]['checked_pc'].max()) + ', ' +
+                                               str(df[df['class_name'] == class_name]['statement_pc'].max()) + ', ' +
+                                               mutation_max_pc_score + ', ' +
+                                               class_name +
+                                               ", {}-{} \n".format(project_name, project_id), max_pc_per_project_file)
 
         except FileNotFoundError:
             pass
+
+
+def get_mutation_pc_max(mutation_result_file_path):
+    df = pd.read_csv(mutation_result_file_path)
+    return str(df['pc_score'].max())
