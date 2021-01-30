@@ -135,11 +135,18 @@ def visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutati
 
     means.append(statistics.mean(statement_increase))
     means.append(statistics.mean(checked_increase))
+    if len(mutation_increase) > 0:
+        means.append(statistics.mean(mutation_increase))
 
     modes.append(statistics.median(statement_increase))
     modes.append(statistics.median(checked_increase))
+    if len(mutation_increase) > 0:
+        modes.append(statistics.median(mutation_increase))
 
     data_to_plot = [statement_increase, checked_increase]
+    if len(mutation_increase) > 0:
+        data_to_plot = [statement_increase, checked_increase, mutation_increase]
+
     fig = plt.figure(1, figsize=(9, 6))
     ax = sns.violinplot(data=data_to_plot, color=".8")
     sns.stripplot(data=data_to_plot, jitter=True, ax=ax)
@@ -156,7 +163,10 @@ def visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutati
     ax.set_ylabel('Max PC')
     ax.set_title(title)
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
+    if len(mutation_increase) > 0:
+        ax.set_xticklabels(tuple(['Statement cov.', 'Checked cov.', 'Mutation score']))
+    else:
+        ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
 
     # ax.legend()
     plt.show()
@@ -172,11 +182,17 @@ def visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutat
 
     means.append(statistics.mean(statement_increase))
     means.append(statistics.mean(checked_increase))
+    if len(mutation_increase) > 0:
+        means.append(statistics.mean(mutation_increase))
 
     modes.append(statistics.median(statement_increase))
     modes.append(statistics.median(checked_increase))
+    if len(mutation_increase) > 0:
+        modes.append(statistics.median(mutation_increase))
 
     data_to_plot = [statement_increase, checked_increase]
+    if len(mutation_increase) > 0:
+        data_to_plot = [statement_increase, checked_increase, mutation_increase]
     fig = plt.figure(1, figsize=(9, 6))
 
     ax = fig.add_subplot(111)
@@ -185,12 +201,16 @@ def visualize_as_boxplot_plot_jitter(checked_increase, statement_increase, mutat
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title(title)
     # ax.set_xticks(ind + width / 2)
-    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage', 'Mutation score']))
+    if len(mutation_increase) > 0:
+        ax.set_xticklabels(tuple(['Statement cov.', 'Checked cov.', 'Mutation score']))
+    else:
+        ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
 
     bp = ax.boxplot(data_to_plot)
     bp['medians'][0].set(color='#3d85c6', linewidth=2)
     bp['medians'][1].set(color='#e69138', linewidth=2)
-#     bp['medians'][2].set(color='#6aa84f', linewidth=2)
+    if len(mutation_increase) > 0:
+        bp['medians'][2].set(color='#6aa84f', linewidth=2)
 
     ax.legend().remove()
     plt.show()
@@ -210,6 +230,7 @@ def read_big_file_and_visualise():
         for row in reader:
             statement_increase.append(float(row['statement_pc_max']))
             checked_increase.append(float(row['checked_pc_max']))
+            mutation_coverage.append(float(row['mutation_pc_max']))
 
             # mutation_increase.append(float(row['mutation_coverage_increase'])
             #                          if float(row['mutation_coverage_increase']) > 0 else 0)
@@ -219,7 +240,7 @@ def read_big_file_and_visualise():
                                     "Probabilistic Coupling: All Projects")
 
 
-read_big_file_and_visualise()
+# read_big_file_and_visualise()
 
 
 def read_file_and_visualise():
@@ -247,4 +268,4 @@ def read_file_and_visualise():
                                         "Probabilistic Coupling: " + project)
 
 
-# read_file_and_visualise()
+read_file_and_visualise()
