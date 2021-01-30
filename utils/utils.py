@@ -46,9 +46,21 @@ def get_checked_coverage(project_id, current_project_path, modified_classes):
 def get_bug_detecting_tests(project_id, current_project_path):
     trigger_tests = []
     file_path = current_project_path + "/trigger_tests/" + str(project_id)
+    print(file_path)
     for line in read_file(file_path):
         if line.strip().startswith("---"):
             trigger_tests.append(line.replace("-", "").strip())
+
+    return trigger_tests
+
+
+def get_bug_detecting_test_as_class(project_id, current_project_path):
+    trigger_tests = []
+    file_path = current_project_path + "/trigger_tests/" + str(project_id)
+    print(file_path)
+    for line in read_file(file_path):
+        if line.strip().startswith("---"):
+            trigger_tests.append(line.replace("-", "").strip().split("::")[0])
 
     return trigger_tests
 
@@ -155,6 +167,14 @@ def compute_coverage_score(coverage, exclude_this, coverable_line_nr):
     except ZeroDivisionError:
         print("Divide by zero error")
         return 0
+
+
+def a_intersection_b(a, b):
+    return [value for value in a if value in b]
+
+
+def len_a_intersection_b(a, b):
+    return len(a_intersection_b(a, b))
 
 
 def read_file(file_path):

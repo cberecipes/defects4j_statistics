@@ -10,6 +10,7 @@ from statistics import mean
 import statistics
 import pandas as pd
 
+from utils.utils import a_intersection_b
 
 results_folder_path = 'Probabilistic_coupling/results/'
 project_config = read_config(['project_details.properties'])
@@ -206,11 +207,6 @@ def generate_adequacy_based_tests(statement_coverage_coverable_lines, projects_s
 
 def contained_in(lst, sub):
     return [value for value in lst if value in sub].__len__() > 0
-
-
-def a_intersection_b(a, b):
-    # return a.__len__()
-    return [value for value in a if value in b]
 
 
 def create_test_suites(percent, project_id, current_project_path, list_of_bug_detecting_tests):
