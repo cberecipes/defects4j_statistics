@@ -39,10 +39,12 @@ def for_each_project(project_name):
     probabilistic_coupling = [['mutant_id', 'pc_score', 'lengths']]
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
         print("running for {}, with bug-id {}".format(project_name, project_id))
-
         exported_project_path = projects_exported_path + "/" + project_name + "_" + str(project_id) + "_" + "fixed"
         project_path = defects4j_project_path + "/" + project_name
+        test_map_file = exported_project_path + "/" + test_map_details
+
         if path.isfile(exported_project_path + "/" + mutants_killed_details):
+            prepare_test_map(test_map_file)
             with open(exported_project_path + "/" + mutants_killed_details) as csv_file:
                 reader = csv.DictReader(csv_file, delimiter=',')
                 for mutant in reader:
@@ -52,13 +54,14 @@ def for_each_project(project_name):
                         mutant_kill_details_as_dict[mutant['MutantNo']] = []
                         mutant_kill_details_as_dict[mutant['MutantNo']].append(mutant['TestNo'])
 
-            with open(exported_project_path + "/" + test_map_details) as csv_file:
+            with open(test_map_file) as csv_file:
                 reader = csv.DictReader(csv_file, delimiter=',')
                 for test in reader:
                     test_map_as_dict[test['TestName']] = test['TestNo']
 
-            list_of_bug_detecting_test = covert_tests_to_numbers(utils.get_bug_detecting_test_as_class
-                                                                 (project_id, project_path), test_map_as_dict)
+            list_of_bug_detecting_test = covert_tests_to_numbers(utils.get_bug_detecting_tests(project_id,
+                                                                                               project_path),
+                                                                 test_map_as_dict)
 
             for mutant in mutant_kill_details_as_dict:
                 len_of_bug_detecting_test = len_a_intersection_b(mutant_kill_details_as_dict[mutant],
@@ -84,3 +87,13 @@ def covert_tests_to_numbers(list_of_bug_detecting_test, test_map_as_dict):
     return result
 
 
+def prepare_test_map(test_map_file):
+    modified_tests = ['TestNo,TestName\n']
+    with open(test_map_file) as csv_file:
+        reader = csv.DictReader(csv_file, delimiter=',')
+        for tests in reader:
+            modified_tests.append(tests['TestNo'] + "," + tests['TestName'].replace("[", "::").replace("]", "") + "\n")
+
+    file1 = open(test_map_file, 'w')
+    file1.writelines(modified_tests)
+    file1.close()

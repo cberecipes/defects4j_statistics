@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import csv
 import seaborn as sns
 from matplotlib.collections import PathCollection
-from numpy import mean
 
 from util import get_project_root, read_config
 
@@ -101,7 +100,10 @@ def visualize_as_violin_plot():
     # ax.set_xlabel('Indicates whether or not, a bug detecting test is included in generated test suite')
     ax.set_title("Probabilistic Coupling")
     ax.set_xticks([1, 2, 3])
-    ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
+    if len(mutation_increase) > 0:
+        ax.set_xticklabels(tuple(['Statement cov.', 'Checked cov.', 'Mutation score']))
+    else:
+        ax.set_xticklabels(tuple(['Statement coverage', 'Checked coverage']))
 
     bp = ax.violinplot(data_to_plot, showmeans=True, showmedians=True)
 
@@ -240,7 +242,7 @@ def read_big_file_and_visualise():
                                     "Probabilistic Coupling: All Projects")
 
 
-# read_big_file_and_visualise()
+read_big_file_and_visualise()
 
 
 def read_file_and_visualise():
@@ -268,4 +270,4 @@ def read_file_and_visualise():
                                         "Probabilistic Coupling: " + project)
 
 
-read_file_and_visualise()
+# read_file_and_visualise()
