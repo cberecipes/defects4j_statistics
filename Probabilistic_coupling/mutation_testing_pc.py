@@ -69,10 +69,10 @@ def for_each_project(project_name):
                 probabilistic_coupling.append([mutant, len_of_bug_detecting_test_kill_a_mutant / len_of_tests,
                                                str(len_of_bug_detecting_test_kill_a_mutant) + "/" + str(len_of_tests)])
 
-            print(test_map_as_dict)
-            print(mutant_kill_details_as_dict)
-            print(list_of_bug_detecting_test)
-            print(probabilistic_coupling)
+            # print(test_map_as_dict)
+            # print(mutant_kill_details_as_dict)
+            # print(list_of_bug_detecting_test)
+            # print(probabilistic_coupling)
 
             with open(file_path + project_name + "_" + str(project_id) + ".csv", mode='w') as csv_file:
                 writer = csv.writer(csv_file)
