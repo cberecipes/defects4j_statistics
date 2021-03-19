@@ -13,7 +13,7 @@ def main():
         sys.exit(2)
     adequacy_based_testsuite_creation.compute()
     mutation_testing_pc.compute()
-    max_prob_coupling.compute()
+    # max_prob_coupling.compute()
 
 
 if __name__ == "__main__":

@@ -168,7 +168,7 @@ def visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutati
                fontsize=15)
     ax.set_ylabel(y_label)
     ax.set_title(title)
-    ax.set_xticks([0, 1])
+    ax.set_xticks([0, 1, 2])
     if len(mutation_increase) > 0:
         ax.set_xticklabels(tuple(['Statement cov.', 'Checked cov.', 'Mutation score']))
     else:
@@ -482,17 +482,20 @@ def read_file_and_visualise():
 def read_file_and_visualise_pc():
     project_list = project_config.get('projects', 'project_list').split(",")
 
-    project=""
     for project in project_list:
         project_range = project_config.get('projects', project).split(",")
+
+        project_count = 0
         statement_increase = []
         checked_increase = []
         mutation_coverage = []
         coverage_scores = []
-        project_count = 0
         for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
+
             file_name = "/prob_coupling_" + project + "_" + str(project_id) + ".csv"
             file_path = str(get_project_root()) + results_folder + file_name
+            mutation_file_name = "/mutant_pc_" + project + "_" + str(project_id) + ".csv"
+            mutation_file_path = str(get_project_root()) + results_folder + mutation_file_name
             if path.isfile(file_path):
                 project_count = project_count + 1
                 with open(file_path) as csv_file:
@@ -509,13 +512,21 @@ def read_file_and_visualise_pc():
                                                 row['checked_modified'],
                                                 row['statement_modified']))
 
-                        # mutation_increase.append(float(row['mutation_coverage_increase'])
-                        #                          if float(row['mutation_coverage_increase']) > 0 else 0)
+            if path.isfile(mutation_file_path):
+                with open(mutation_file_path) as csv_file:
+                    reader = csv.DictReader(csv_file, delimiter=',')
+                    for row in reader:
+                        #mutation_coverage.append(float(row['pc_score']))
+                        if float(row['pc_score']) > 0:
+                            mutation_coverage.append(float(row['pc_score']))
 
-        save_path = str(get_project_root()) + results_folder + '/' + project
-        visualize_as_scatterplot_skew(coverage_scores, save_path,
-                                      "Probabilistic Coupling: " + project + "\n Bug count: " + str(project_count),
-                                      "Count of statements")
+            save_path = str(get_project_root()) + results_folder + '/' + project
+            # visualize_as_scatterplot_skew(coverage_scores, save_path,
+            #                               "Probabilistic Coupling: " + project + "-" + str(project_id) +
+            #                               "\n Bug count: " + str(project_count), "Count of statements")
+
+        visualize_as_violin_plot_jitter(checked_increase, statement_increase, mutation_coverage, save_path,
+                                        "Probabilistic Coupling: " + project, "PC score")
 
 
 read_file_and_visualise_pc()

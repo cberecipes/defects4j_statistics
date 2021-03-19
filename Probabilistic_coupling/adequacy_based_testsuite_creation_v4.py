@@ -212,4 +212,4 @@ def is_this_statement_modified(dict_of_modified_coverable_lines, statement, type
         else:
             return "."
     except Exception:
-        return ""
+        return "*"

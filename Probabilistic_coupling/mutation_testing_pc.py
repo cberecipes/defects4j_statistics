@@ -33,11 +33,10 @@ def for_each_project(project_name):
     defects4j_project_path = project_config.get('paths', 'defects4j_project_path')
     projects_exported_path = project_config.get('paths', 'projects_exported_path')
 
-    mutant_kill_details_as_dict = {}
-    test_map_as_dict = {}
-    list_of_bug_detecting_test = []
-    probabilistic_coupling = [['mutant_id', 'pc_score', 'lengths']]
     for project_id in range(int(project_range[0]), int(project_range[1]) + 1):
+        probabilistic_coupling = [['mutant_id', 'pc_score', 'lengths']]
+        mutant_kill_details_as_dict = {}
+        test_map_as_dict = {}
         print("running for {}, with bug-id {}".format(project_name, project_id))
         exported_project_path = projects_exported_path + "/" + project_name + "_" + str(project_id) + "_" + "fixed"
         project_path = defects4j_project_path + "/" + project_name
@@ -64,20 +63,20 @@ def for_each_project(project_name):
                                                                  test_map_as_dict)
 
             for mutant in mutant_kill_details_as_dict:
-                len_of_bug_detecting_test = len_a_intersection_b(mutant_kill_details_as_dict[mutant],
-                                                                 list_of_bug_detecting_test)
+                len_of_bug_detecting_test_kill_a_mutant = len_a_intersection_b(mutant_kill_details_as_dict[mutant],
+                                                                               list_of_bug_detecting_test)
                 len_of_tests = len(mutant_kill_details_as_dict[mutant])
-                probabilistic_coupling.append([mutant, len_of_bug_detecting_test / len_of_tests,
-                                               str(len_of_bug_detecting_test) + "/" + str(len_of_tests)])
+                probabilistic_coupling.append([mutant, len_of_bug_detecting_test_kill_a_mutant / len_of_tests,
+                                               str(len_of_bug_detecting_test_kill_a_mutant) + "/" + str(len_of_tests)])
 
-        print(test_map_as_dict)
-        print(mutant_kill_details_as_dict)
-        print(list_of_bug_detecting_test)
-        print(probabilistic_coupling)
+            print(test_map_as_dict)
+            print(mutant_kill_details_as_dict)
+            print(list_of_bug_detecting_test)
+            print(probabilistic_coupling)
 
-        with open(file_path + project_name + "_" + str(project_id) + ".csv", mode='w') as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerows(probabilistic_coupling)
+            with open(file_path + project_name + "_" + str(project_id) + ".csv", mode='w') as csv_file:
+                writer = csv.writer(csv_file)
+                writer.writerows(probabilistic_coupling)
 
 
 def covert_tests_to_numbers(list_of_bug_detecting_test, test_map_as_dict):
